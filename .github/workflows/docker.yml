@@ -9,10 +9,6 @@ concurrency:
   group: docker-${{ github.ref }}
   cancel-in-progress: false
 
-on:
-  push:
-    branches: [master]
-
 permissions:
   contents: read
   packages: write
