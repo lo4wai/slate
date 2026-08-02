@@ -9,10 +9,7 @@ import { DynamicContentRegistry } from './dynamic-content-registry';
 import { DailyCalendarProvider } from './providers/daily-calendar.provider';
 import { MonthCalendarProvider } from './providers/month-calendar.provider';
 import { WeatherProvider } from './providers/weather.provider';
-import { QweatherConfig } from './providers/qweather.config';
 import { HistoryTodayProvider } from './providers/history-today.provider';
-import { WeatherAlertProvider } from './providers/weather-alert.provider';
-import { EarthquakeReportProvider } from './providers/earthquake-report.provider';
 import { DashboardProvider } from './providers/dashboard.provider';
 import { FontTestProvider } from './providers/font-test.provider';
 import { CalendarDataService } from './calendar-data.service';
@@ -48,13 +45,10 @@ import { DynamicPreviewController } from './dynamic-preview.controller';
     CalendarDataService,
     DynamicContentRendererService,
     DynamicContentService,
-    QweatherConfig,
     DailyCalendarProvider,
     MonthCalendarProvider,
     WeatherProvider,
     HistoryTodayProvider,
-    WeatherAlertProvider,
-    EarthquakeReportProvider,
     DashboardProvider,
     FontTestProvider,
     DynamicContentSchedulerService,

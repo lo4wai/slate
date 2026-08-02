@@ -3,7 +3,6 @@ import { WeatherConfig, type WeatherConfigT } from 'shared';
 import { z } from 'zod';
 import { fetchJson as fetchJsonWithTimeout } from '../../../common/http/fetch';
 import { getDateTimeFormat } from '../../../common/utils/intl';
-import { setBoundedCache } from '../../../common/utils/cache-utils';
 import type { DataProvider, DynamicContentFetchCtx } from '../dynamic-content.types';
 import { datePartsInTz } from '../timezone';
 import {
@@ -12,7 +11,6 @@ import {
   DEFAULT_PROVIDER_FETCH_TIMEOUT_MS,
   isRecentTimestamp,
 } from './provider-cache';
-import { QweatherConfig } from './qweather.config';
 
 export interface WeatherForecastDay {
   label: string;
@@ -36,49 +34,51 @@ export interface WeatherProviderData {
   fc: WeatherForecastDay[];
 }
 
-interface LookupCacheEntry {
-  id: string;
-  fetchedAt: number;
+interface HkoCurrentWx {
+  btime?: string;
+  temp?: string;
+  rh?: string;
 }
 
-interface QWeatherNowResponse {
-  code?: string;
-  updateTime?: string;
-  now?: {
-    obsTime?: string;
-    temp?: string;
-    feelsLike?: string;
-    text?: string;
-    icon?: string;
-    windDir?: string;
-    windScale?: string;
-    windSpeed?: string;
-    humidity?: string;
-    pressure?: string;
-  };
+interface HkoRhrRead {
+  BulletinTime?: string;
+  hkotemp?: string;
+  hkorh?: string;
+  FormattedObsTime?: string;
 }
 
-interface QWeatherForecastResponse {
-  code?: string;
-  updateTime?: string;
-  daily?: Array<{
-    fxDate?: string;
-    tempMax?: string;
-    tempMin?: string;
-    textDay?: string;
-    textNight?: string;
-    iconDay?: string;
-  }>;
+interface HkoMain {
+  BulletinTime?: string;
+  Temperature?: string;
+  RH?: string;
+  HomeMaxTemperature?: string;
+  HomeMinTemperature?: string;
 }
 
-interface QWeatherCityLookupResponse {
-  code?: string;
-  location?: Array<{
-    id?: string;
-    name?: string;
-    adm1?: string;
-    adm2?: string;
-  }>;
+interface HkoForecastDay {
+  ForecastDate?: string;
+  ForecastWind?: string;
+  ForecastWeather?: string;
+  ForecastMaxtemp?: string;
+  ForecastMintemp?: string;
+  ForecastMaxrh?: string;
+  ForecastMinrh?: string;
+  ForecastIcon?: string;
+  PSR?: string;
+  IconDesc?: string;
+}
+
+interface HkoF9D {
+  BulletinDate?: string;
+  GeneralSituation?: string;
+  WeatherForecast?: HkoForecastDay[];
+}
+
+interface HkoApiResponse {
+  currwx?: HkoCurrentWx;
+  RHRREAD?: HkoRhrRead;
+  hko?: HkoMain;
+  F9D?: HkoF9D;
 }
 
 export interface WeatherCitySearchResult {
@@ -88,12 +88,9 @@ export interface WeatherCitySearchResult {
   adm2: string;
 }
 
-const LOOKUP_CACHE_TTL_MS = 86_400_000;
-const CITY_SEARCH_CACHE_TTL_MS = 3_600_000;
 const FC_LABELS = ['今日', '明日', '后天'];
 const MAX_CACHE_ENTRIES = 128;
-const MAX_LOOKUP_CACHE_ENTRIES = 256;
-const MAX_CITY_SEARCH_CACHE_ENTRIES = 128;
+const HKO_API_URL = 'https://www.hko.gov.hk/wxinfo/json/one_json.xml';
 
 @Injectable()
 export class WeatherProvider implements DataProvider<WeatherConfigT, WeatherProviderData> {
@@ -101,60 +98,25 @@ export class WeatherProvider implements DataProvider<WeatherConfigT, WeatherProv
   private readonly fetcher = new CachedInflightFetcher<string, WeatherProviderData>(
     MAX_CACHE_ENTRIES
   );
-  private readonly lookupCache = new Map<string, LookupCacheEntry>();
-  private readonly lookupInflight = new Map<string, Promise<string>>();
-  private readonly citySearchCache = new Map<
-    string,
-    { data: WeatherCitySearchResult[]; fetchedAt: number }
-  >();
-  private readonly citySearchInflight = new Map<string, Promise<WeatherCitySearchResult[]>>();
 
-  constructor(private readonly config: QweatherConfig) {}
+  constructor() {}
 
   validateConfig(raw: unknown): WeatherConfigT {
     return WeatherConfig.parse(raw);
   }
 
   async searchCities(
-    query: string,
-    limit = 8,
-    now = Date.now()
+    _query: string,
+    _limit = 8,
+    _now = Date.now()
   ): Promise<WeatherCitySearchResult[]> {
-    const normalizedQuery = query.trim();
-    if (!normalizedQuery) return [];
-    const apiKey = this.config.apiKey;
-    if (!apiKey) throw new Error('QWEATHER_API_KEY 未配置');
-    if (!this.config.apiHost) {
-      throw new Error('QWEATHER_API_HOST 未配置，请在和风天气控制台-设置中复制你的 API Host');
-    }
-
-    const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 20);
-    const key = `${normalizedQuery}:${safeLimit}`;
-    const cached = this.citySearchCache.get(key);
-    if (cached && now - cached.fetchedAt < CITY_SEARCH_CACHE_TTL_MS) return cached.data;
-    if (cached) this.citySearchCache.delete(key);
-
-    const existing = this.citySearchInflight.get(key);
-    if (existing) return existing;
-
-    const host = this.config.apiHost.replace(/\/+$/, '');
-    const p = this.fetchCitySearch(host, apiKey, normalizedQuery, safeLimit)
-      .then((data) => {
-        setBoundedCache(
-          this.citySearchCache,
-          key,
-          { data, fetchedAt: now },
-          MAX_CITY_SEARCH_CACHE_ENTRIES
-        );
-        return data;
-      })
-      .finally(() => this.citySearchInflight.delete(key));
-    this.citySearchInflight.set(key, p);
-    return p;
+    return [
+      { id: 'hong-kong', name: '香港', adm1: '香港', adm2: '香港' },
+    ];
   }
 
-  private cacheKey(c: WeatherConfigT): string {
-    return `${c.provider}:${c.location_id}:${c.tz}`;
+  private cacheKey(_c: WeatherConfigT): string {
+    return 'hko:hk:Asia/Hong_Kong';
   }
 
   async fetchData(
@@ -165,64 +127,39 @@ export class WeatherProvider implements DataProvider<WeatherConfigT, WeatherProv
     const now = ctx.now.getTime();
     const ttlSec = Math.max(config.refresh_interval_sec ?? DEFAULT_PROVIDER_CACHE_TTL_SEC, 300);
     return this.fetcher.getOrFetch(key, now, ttlSec * 1000, () =>
-      this.fetchFromQWeather(config, ctx)
+      this.fetchFromHKO(config, ctx)
     );
   }
 
-  private async fetchFromQWeather(
+  private async fetchFromHKO(
     config: WeatherConfigT,
     ctx: DynamicContentFetchCtx
   ): Promise<WeatherProviderData> {
-    const apiKey = this.config.apiKey;
-    if (!apiKey) {
-      const fallback = this.fallbackFromLastData(config, ctx.lastData, ctx.now);
-      if (fallback) return fallback;
-      throw new Error('QWEATHER_API_KEY 未配置');
-    }
-    if (!this.config.apiHost) {
-      const fallback = this.fallbackFromLastData(config, ctx.lastData, ctx.now);
-      if (fallback) return fallback;
-      throw new Error('QWEATHER_API_HOST 未配置，请在和风天气控制台-设置中复制你的 API Host');
-    }
+    const json = await fetchJson<HkoApiResponse>(HKO_API_URL);
 
-    const host = this.config.apiHost.replace(/\/+$/, '');
-    const locationId = await this.resolveLocationId(
-      host,
-      apiKey,
-      config.location_id,
-      ctx.now.getTime()
-    );
-    const location = encodeURIComponent(locationId);
-    const lang = 'zh';
-    const nowUrl = `${host}/v7/weather/now?location=${location}&lang=${lang}&unit=m`;
-    const forecastUrl = `${host}/v7/weather/3d?location=${location}&lang=${lang}&unit=m`;
+    const currwx = json.currwx ?? {};
+    const hko = json.hko ?? {};
+    const f9d = json.F9D ?? {};
 
-    const [nowJson, forecastJson] = await Promise.all([
-      fetchJson<QWeatherNowResponse>(nowUrl, apiKey),
-      fetchJson<QWeatherForecastResponse>(forecastUrl, apiKey),
-    ]);
+    const tempC = toDisplayNumber(currwx.temp ?? hko.Temperature);
+    const humidity = toDisplayNumber(currwx.rh ?? hko.RH);
 
-    if (nowJson.code !== '200') throw new Error(`QWeather now code ${nowJson.code ?? 'unknown'}`);
-    if (forecastJson.code !== '200')
-      throw new Error(`QWeather forecast code ${forecastJson.code ?? 'unknown'}`);
+    let summary = (f9d.GeneralSituation ?? '').trim();
+    summary = stripHtmlTags(summary);
 
-    const nowData = nowJson.now ?? {};
-    const windSpeed = toDisplayNumber(nowData.windSpeed);
-    const fc =
-      forecastJson.daily?.slice(0, 3).map((day, index) => {
-        const dayText = day.textDay || day.textNight || '--';
-        const night = day.textNight && day.textNight !== dayText ? `/${day.textNight}` : '';
-        const tempMin = toDisplayNumber(day.tempMin);
-        const tempMax = toDisplayNumber(day.tempMax);
-        return {
-          label: forecastLabel(day.fxDate, config.tz, ctx.now) ?? FC_LABELS[index] ?? '--',
-          val: `${dayText}${night}  ${tempMin}~${tempMax}°`,
-          text: `${dayText}${night}`,
-          tempMin,
-          tempMax,
-          code: Number.parseInt(day.iconDay ?? '999', 10),
-        };
-      }) ?? [];
+    const fc = (f9d.WeatherForecast ?? []).slice(0, 3).map((day, index) => {
+      const weatherText = day.IconDesc ?? day.ForecastWeather ?? '--';
+      const tempMin = toDisplayNumber(day.ForecastMintemp);
+      const tempMax = toDisplayNumber(day.ForecastMaxtemp);
+      return {
+        label: forecastLabelHKO(day.ForecastDate, config.tz, ctx.now) ?? FC_LABELS[index] ?? '--',
+        val: `${weatherText}  ${tempMin}~${tempMax}°`,
+        text: weatherText,
+        tempMin,
+        tempMax,
+        code: Number.parseInt(day.ForecastIcon ?? '999', 10),
+      };
+    });
 
     while (fc.length < 3) {
       fc.push({
@@ -235,83 +172,22 @@ export class WeatherProvider implements DataProvider<WeatherConfigT, WeatherProv
       });
     }
 
+    const obsTime = currwx.btime
+      ? formatHkoTime(currwx.btime)
+      : ctx.now.toISOString();
+
     return {
-      tempC: toDisplayNumber(nowData.temp),
-      feelsLikeC: toDisplayNumber(nowData.feelsLike),
-      humidity: toDisplayNumber(nowData.humidity),
-      pressure: toDisplayNumber(nowData.pressure),
-      windDisplay: nowData.windDir
-        ? `${nowData.windDir}${nowData.windScale ? nowData.windScale + '级' : ''}`
-        : windSpeed === '--'
-          ? '--'
-          : `${windSpeed}km/h`,
-      summary: nowData.text || '--',
-      code: Number.parseInt(nowData.icon ?? forecastJson.daily?.[0]?.iconDay ?? '999', 10),
-      obsTime: nowData.obsTime || nowJson.updateTime || ctx.now.toISOString(),
-      updatedAt: nowJson.updateTime || ctx.now.toISOString(),
+      tempC,
+      feelsLikeC: tempC,
+      humidity,
+      pressure: '--',
+      windDisplay: '--',
+      summary: summary || '--',
+      code: Number.parseInt((f9d.WeatherForecast ?? [{}])[0]?.ForecastIcon ?? '999', 10),
+      obsTime,
+      updatedAt: obsTime,
       fc,
     };
-  }
-
-  private async resolveLocationId(
-    host: string,
-    apiKey: string,
-    locationId: string,
-    now: number
-  ): Promise<string> {
-    if (/^\d+$/.test(locationId)) return locationId;
-    const cached = this.lookupCache.get(locationId);
-    if (cached && now - cached.fetchedAt < LOOKUP_CACHE_TTL_MS) return cached.id;
-    if (cached) this.lookupCache.delete(locationId);
-
-    const existing = this.lookupInflight.get(locationId);
-    if (existing) return existing;
-
-    const p = this.fetchLocationId(host, apiKey, locationId)
-      .then((id) => {
-        setBoundedCache(
-          this.lookupCache,
-          locationId,
-          { id, fetchedAt: now },
-          MAX_LOOKUP_CACHE_ENTRIES
-        );
-        return id;
-      })
-      .finally(() => this.lookupInflight.delete(locationId));
-    this.lookupInflight.set(locationId, p);
-    return p;
-  }
-
-  private async fetchLocationId(host: string, apiKey: string, locationId: string): Promise<string> {
-    const url =
-      `${host}/geo/v2/city/lookup?location=${encodeURIComponent(locationId)}` +
-      `&range=cn&number=1&lang=zh`;
-    const json = await fetchJson<QWeatherCityLookupResponse>(url, apiKey);
-    if (json.code !== '200') throw new Error(`QWeather city lookup code ${json.code ?? 'unknown'}`);
-    const id = json.location?.[0]?.id;
-    if (!id) throw new Error(`QWeather city lookup empty: ${locationId}`);
-    return id;
-  }
-
-  private async fetchCitySearch(
-    host: string,
-    apiKey: string,
-    query: string,
-    limit: number
-  ): Promise<WeatherCitySearchResult[]> {
-    const url =
-      `${host}/geo/v2/city/lookup?location=${encodeURIComponent(query)}` +
-      `&range=cn&number=${limit}&lang=zh`;
-    const json = await fetchJson<QWeatherCityLookupResponse>(url, apiKey);
-    if (json.code !== '200') throw new Error(`QWeather city lookup code ${json.code ?? 'unknown'}`);
-    return (json.location ?? [])
-      .map((location) => ({
-        id: location.id?.trim() ?? '',
-        name: location.name?.trim() ?? '',
-        adm1: location.adm1?.trim() ?? '',
-        adm2: location.adm2?.trim() ?? '',
-      }))
-      .filter((location) => location.id && location.name);
   }
 
   private fallbackFromLastData(
@@ -344,10 +220,10 @@ function reusableWeatherAgeMs(config: WeatherConfigT): number {
   return Math.min(Math.max(ttlSec * 3, 900), 43_200) * 1000;
 }
 
-async function fetchJson<T>(url: string, apiKey: string): Promise<T> {
+async function fetchJson<T>(url: string): Promise<T> {
   return fetchJsonWithTimeout<T>(url, {
     timeoutMs: DEFAULT_PROVIDER_FETCH_TIMEOUT_MS,
-    headers: { 'X-QW-Api-Key': apiKey },
+    headers: {},
     userAgent: null,
   });
 }
@@ -383,17 +259,34 @@ function toDisplayNumber(value: unknown): number | string {
   return '--';
 }
 
-export function forecastLabel(value: unknown, timeZone: string, now: Date): string | null {
+function stripHtmlTags(html: string): string {
+  return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function formatHkoTime(btime: string): string {
+  const y = Number.parseInt(btime.slice(0, 4), 10);
+  const m = Number.parseInt(btime.slice(4, 6), 10);
+  const d = Number.parseInt(btime.slice(6, 8), 10);
+  const h = Number.parseInt(btime.slice(8, 10), 10);
+  const min = Number.parseInt(btime.slice(10, 12), 10);
+  if (Number.isNaN(y) || y < 2000) return new Date().toISOString();
+  const date = new Date(Date.UTC(y, m - 1, d, h, min));
+  return date.toISOString();
+}
+
+export function forecastLabelHKO(value: unknown, timeZone: string, now: Date): string | null {
   if (typeof value !== 'string' || !value) return '--';
-  const [year, month, day] = value.split('-').map((part) => Number.parseInt(part, 10));
-  if (!year || !month || !day) return value.slice(5);
+  const year = Number.parseInt(value.slice(0, 4), 10);
+  const month = Number.parseInt(value.slice(4, 6), 10);
+  const day = Number.parseInt(value.slice(6, 8), 10);
+  if (!year || !month || !day) return value;
   const today = datePartsInTz(now, timeZone);
   if (today) {
     const delta = ordinalDay(year, month, day) - ordinalDay(today.year, today.month, today.day);
     if (delta >= 0 && delta < FC_LABELS.length) return FC_LABELS[delta]!;
   }
   const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
-  if (Number.isNaN(date.getTime())) return value.slice(5);
+  if (Number.isNaN(date.getTime())) return value.slice(4);
   try {
     return getDateTimeFormat('zh-CN', {
       timeZone,
@@ -401,7 +294,7 @@ export function forecastLabel(value: unknown, timeZone: string, now: Date): stri
       day: 'numeric',
     }).format(date);
   } catch {
-    return value.slice(5);
+    return value.slice(4);
   }
 }
 

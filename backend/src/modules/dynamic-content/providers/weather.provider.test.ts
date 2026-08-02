@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from 'bun:test';
-import type { QweatherConfig } from './qweather.config';
-import { forecastLabel, WeatherProvider } from './weather.provider';
+import { forecastLabelHKO, WeatherProvider } from './weather.provider';
 
 const originalFetch = globalThis.fetch;
 
@@ -8,63 +7,69 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-describe('forecastLabel', () => {
+describe('forecastLabelHKO', () => {
   it('labels forecast dates across year boundaries', () => {
     const now = new Date('2026-12-31T04:00:00.000Z');
 
-    expect(forecastLabel('2027-01-01', 'Asia/Shanghai', now)).toBe('明日');
-    expect(forecastLabel('2027-01-02', 'Asia/Shanghai', now)).toBe('后天');
+    expect(forecastLabelHKO('20270101', 'Asia/Shanghai', now)).toBe('明日');
+    expect(forecastLabelHKO('20270102', 'Asia/Shanghai', now)).toBe('后天');
   });
 
-  it('searches QWeather cities and maps safe response fields', async () => {
-    let requestedUrl = '';
-    globalThis.fetch = (async (input: Parameters<typeof fetch>[0]) => {
-      requestedUrl = String(input);
+  it('returns HK for city search', async () => {
+    const provider = new WeatherProvider();
+    const results = await provider.searchCities('anything');
+    expect(results).toEqual([{ id: 'hong-kong', name: '香港', adm1: '香港', adm2: '香港' }]);
+  });
+
+  it('fetches HKO data and maps fields correctly', async () => {
+    globalThis.fetch = (async (_input: Parameters<typeof fetch>[0]) => {
       return Response.json({
-        code: '200',
-        location: [
-          { id: '101250101', name: '长沙', adm1: '湖南省', adm2: '长沙市' },
-          { id: '', name: 'invalid', adm1: '湖南省', adm2: '长沙市' },
-        ],
+        currwx: { btime: '202605181410', temp: '26.1', rh: '92' },
+        hko: { Temperature: '26.1', RH: '92' },
+        F9D: {
+          BulletinDate: '20260518',
+          GeneralSituation: '&#x4eca;&#x65e5;&#x591a;&#x4e91;',
+          WeatherForecast: [
+            {
+              ForecastDate: '20260518',
+              ForecastWeather: '&#x591a;&#x4e91;',
+              ForecastMaxtemp: '30',
+              ForecastMintemp: '25',
+              ForecastIcon: '62',
+              IconDesc: '&#x5c11;&#x96e8;',
+            },
+            {
+              ForecastDate: '20260519',
+              ForecastWeather: '&#x9633;',
+              ForecastMaxtemp: '31',
+              ForecastMintemp: '26',
+              ForecastIcon: '101',
+              IconDesc: '&#x9633;',
+            },
+          ],
+        },
       });
     }) as unknown as typeof fetch;
 
-    const provider = new WeatherProvider({
-      apiKey: 'key',
-      apiHost: 'https://weather.example',
-    } as QweatherConfig);
-
-    await expect(provider.searchCities('长沙', 8, 1)).resolves.toEqual([
-      { id: '101250101', name: '长沙', adm1: '湖南省', adm2: '长沙市' },
-    ]);
-    expect(requestedUrl).toContain('/geo/v2/city/lookup');
-    expect(requestedUrl).toContain('location=%E9%95%BF%E6%B2%99');
-    expect(requestedUrl).toContain('number=8');
-  });
-
-  it('does not reuse stale last-data fallback when QWeather is not configured', async () => {
-    const provider = new WeatherProvider({
-      apiKey: '',
-      apiHost: '',
-    } as QweatherConfig);
+    const provider = new WeatherProvider();
     const config = provider.validateConfig({
       type: 'weather',
-      tz: 'Asia/Shanghai',
+      tz: 'Asia/Hong_Kong',
       provider: 'qweather',
-      location_id: '101250101',
-      location_label: '长沙',
+      location_id: 'hong-kong',
+      location_label: '&#x9999;&#x6e2f;',
       refresh_interval_sec: 600,
     });
 
-    await expect(
-      provider.fetchData(config, {
-        now: new Date('2026-05-18T00:00:00.000Z'),
-        lastData: {
-          tempC: 21,
-          summary: '晴',
-          updatedAt: '2026-05-17T00:00:00.000Z',
-        },
-      })
-    ).rejects.toThrow('QWEATHER_API_KEY 未配置');
+    const data = await provider.fetchData(config, {
+      now: new Date('2026-05-18T06:10:00.000Z'),
+      lastData: null,
+    });
+
+    expect(data.tempC).toBe(26);
+    expect(data.humidity).toBe(92);
+    expect(data.fc.length).toBeGreaterThanOrEqual(2);
+    expect(data.fc[0].tempMax).toBe(30);
+    expect(data.fc[0].tempMin).toBe(25);
   });
 });
