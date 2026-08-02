@@ -7,15 +7,15 @@ export function formatBytes(n: number): string {
 }
 
 export function relativeTimeFrom(now: number, iso: string | null): string {
-  if (!iso) return '从未上线';
+  if (!iso) return '從未上線';
   const timestamp = new Date(iso).getTime();
-  if (!Number.isFinite(timestamp)) return '从未上线';
+  if (!Number.isFinite(timestamp)) return '從未上線';
   const ms = Math.max(0, now - timestamp);
   const s = Math.floor(ms / 1000);
   if (s < 60) return `${s} 秒前`;
   const m = Math.floor(s / 60);
-  if (m < 60) return `${m} 分钟前`;
+  if (m < 60) return `${m} 分鐘前`;
   const h = Math.floor(m / 60);
-  if (h < 48) return `${h} 小时前`;
+  if (h < 48) return `${h} 小時前`;
   return `${Math.floor(h / 24)} 天前`;
 }

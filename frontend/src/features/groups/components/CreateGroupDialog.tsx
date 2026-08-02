@@ -1,4 +1,4 @@
-// 新建组对话框—输入组名后回调 onCreate。
+// 新建組對話框—輸入組名後回調 onCreate。
 
 import { useEffect, useState } from 'react';
 import { FolderHeart, ArrowRight } from 'lucide-react';
@@ -35,14 +35,14 @@ export function CreateGroupDialog({
         <Dialog.Content className={dialogContentCls}>
           <DialogHeader
             icon={<FolderHeart size={24} />}
-            title="新建组"
-            description="创建一个新的内容组来管理帧序列。"
+            title="新建組"
+            description="創建一個新的內容組來管理幀序列。"
             className="mb-6"
           />
 
           <div className="space-y-5">
             <Input
-              label="名称"
+              label="名稱"
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => {
@@ -62,7 +62,7 @@ export function CreateGroupDialog({
               disabled={!name.trim() || isPending}
               iconRight={isPending ? undefined : <ArrowRight size={14} />}
             >
-              {isPending ? <Spinner /> : '创建'}
+              {isPending ? <Spinner /> : '創建'}
             </Button>
           </div>
         </Dialog.Content>

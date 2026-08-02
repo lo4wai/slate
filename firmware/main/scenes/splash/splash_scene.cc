@@ -19,8 +19,8 @@
 namespace {
 constexpr char kTag[] = "splash";
 
-// SoftAP SSID 计算逻辑跟 captive_portal.cc HandleRoot 一致,保持一致避免文案
-// 跟实际 AP 名对不上。
+// SoftAP SSID 計算邏輯跟 captive_portal.cc HandleRoot 一致,保持一致避免文案
+// 跟實際 AP 名對不上。
 void FormatApSsid(char* out, size_t cap) {
     uint8_t mac[6] = {0};
     esp_read_mac(mac, ESP_MAC_WIFI_SOFTAP);
@@ -63,7 +63,7 @@ void SplashScene::OnEnter(SceneContext& ctx) {
         return;
     }
 
-    // NVS 此刻已 init(InitStorage 早于 StartUiLoop)。无 cred → 配网模式。
+    // NVS 此刻已 init(InitStorage 早於 StartUiLoop)。無 cred → 配網模式。
     cred::Credentials creds;
     state_ = cred::Load(creds) ? State::kInitializing : State::kProvisioning;
 
@@ -88,7 +88,7 @@ void SplashScene::OnExit(SceneContext& ctx) {
 void SplashScene::CreateLayout() {
     root_ = CreateFullscreenRoot();
 
-    // 主文案(中文 + 阿拉伯数字),Awaiting pair 状态下放在码上方做提示。
+    // 主文案(中文 + 阿拉伯數字),Awaiting pair 狀態下放在碼上方做提示。
     text_label_ = lv_label_create(root_);
     lv_obj_set_style_text_font(text_label_, &Zfull_16, 0);
     lv_obj_set_style_text_color(text_label_, lv_color_black(), 0);
@@ -97,7 +97,7 @@ void SplashScene::CreateLayout() {
     lv_label_set_long_mode(text_label_, LV_LABEL_LONG_WRAP);
     lv_obj_set_width(text_label_, LV_HOR_RES - 32);
 
-    // 配对码大字(仅 ASCII A-Z 0-9,montserrat_48 即可)。默认隐藏,kAwaitingPair 时显示。
+    // 配對碼大字(僅 ASCII A-Z 0-9,montserrat_48 即可)。默認隱藏,kAwaitingPair 時顯示。
     code_label_ = lv_label_create(root_);
     lv_obj_set_style_text_font(code_label_, &lv_font_montserrat_48, 0);
     lv_obj_set_style_text_color(code_label_, lv_color_black(), 0);
@@ -105,12 +105,12 @@ void SplashScene::CreateLayout() {
     lv_obj_set_style_text_letter_space(code_label_, 4, 0);
     lv_obj_add_flag(code_label_, LV_OBJ_FLAG_HIDDEN);
 
-    // 应急逃生 hint:始终在底部,长按 ENTER 进设置(配网恢复 / 看设备信息 / 工厂重置)。
+    // 應急逃生 hint:始終在底部,長按 ENTER 進設置(配網恢復 / 看設備信息 / 工廠重置)。
     hint_label_ = lv_label_create(root_);
     lv_obj_set_style_text_font(hint_label_, &Zfull_16, 0);
     lv_obj_set_style_text_color(hint_label_, lv_color_black(), 0);
     lv_obj_set_style_text_align(hint_label_, LV_TEXT_ALIGN_CENTER, 0);
-    lv_label_set_text(hint_label_, "长按确认 进入设置");
+    lv_label_set_text(hint_label_, "長按確認 進入設置");
     lv_obj_align(hint_label_, LV_ALIGN_BOTTOM_MID, 0, -16);
 }
 
@@ -121,8 +121,8 @@ void SplashScene::OnEvent(SceneContext& ctx, const UiEvent& e) {
         ESP_LOGD(kTag, "event kind=%s detail=%s state=%d root=%p", evt::log::KindName(e.kind), detail,
                  static_cast<int>(state_), root_);
     }
-    // 应急逃生:长按 ENTER push 设置页 — 即使同步未完成、网络断开,
-    // 用户仍能调音量 / 看设备信息 / 重新配网 / 恢复出厂。
+    // 應急逃生:長按 ENTER push 設置頁 — 即使同步未完成、網絡斷開,
+    // 用户仍能調音量 / 看設備信息 / 重新配網 / 恢復出廠。
     if (e.kind == UiEventKind::kButtonLong && e.u.button.btn == ButtonId::kEnter) {
         ESP_LOGD(kTag, "button long btn=enter action=settings");
         ctx.stack->RequestPush(std::make_unique<SettingsScene>());
@@ -139,7 +139,7 @@ void SplashScene::OnEvent(SceneContext& ctx, const UiEvent& e) {
 
     if (e.kind == UiEventKind::kBootStage) {
         State target = MapBootStage(e.u.boot_stage.stage);
-        // kProvisioning 一旦确认就锁住:避免后续 stray 事件把"配网模式"覆盖。
+        // kProvisioning 一旦確認就鎖住:避免後續 stray 事件把"配網模式"覆蓋。
         if (state_ == State::kProvisioning && target != State::kProvisioning) {
             return;
         }
@@ -188,7 +188,7 @@ void SplashScene::OnEvent(SceneContext& ctx, const UiEvent& e) {
             }
         }
     } else if (e.kind == UiEventKind::kSyncProgress) {
-        // 节流：current 不变 / 距上次 < 500 ms 都跳过
+        // 節流：current 不變 / 距上次 < 500 ms 都跳過
         const uint8_t    cur = e.u.progress.current;
         const TickType_t now = xTaskGetTickCount();
         if (cur == last_progress_current_)
@@ -204,8 +204,8 @@ void SplashScene::OnEvent(SceneContext& ctx, const UiEvent& e) {
             need_render = true;
         }
     } else if (e.kind == UiEventKind::kSyncFinished && !e.u.sync.ok) {
-        // 失败仅在不是 awaiting_* 状态(那两种由后端权威 state 推过来,不要被网抖盖)
-        // 时切到「网络异常」。
+        // 失敗僅在不是 awaiting_* 狀態(那兩種由後端權威 state 推過來,不要被網抖蓋)
+        // 時切到「網絡異常」。
         if (state_ != State::kProvisioning && state_ != State::kAwaitingPair && state_ != State::kAwaitingGroup) {
             state_      = State::kNetError;
             need_render = true;
@@ -225,58 +225,58 @@ void SplashScene::RenderContent() {
 
     switch (state_) {
         case State::kInitializing:
-            std::snprintf(buf, sizeof(buf), "正在启动…");
+            std::snprintf(buf, sizeof(buf), "正在啓動…");
             break;
         case State::kProvisioning: {
             char ap_ssid[24];
             FormatApSsid(ap_ssid, sizeof(ap_ssid));
             std::snprintf(buf, sizeof(buf),
-                          "配网模式\n\n"
-                          "请连接 Wi-Fi：\n%s\n\n"
-                          "浏览器打开：\nhttp://192.168.4.1",
+                          "配網模式\n\n"
+                          "請連接 Wi-Fi：\n%s\n\n"
+                          "瀏覽器打開：\nhttp://192.168.4.1",
                           ap_ssid);
             break;
         }
         case State::kWifiConnecting:
-            std::snprintf(buf, sizeof(buf), "连接 Wi-Fi 中\n%s", ssid_[0] ? ssid_ : "");
+            std::snprintf(buf, sizeof(buf), "連接 Wi-Fi 中\n%s", ssid_[0] ? ssid_ : "");
             break;
         case State::kWifiFailed:
-            std::snprintf(buf, sizeof(buf), "Wi-Fi 连接失败\n\n长按 确认 重新配网");
+            std::snprintf(buf, sizeof(buf), "Wi-Fi 連接失敗\n\n長按 確認 重新配網");
             break;
         case State::kSntp:
-            std::snprintf(buf, sizeof(buf), "对时中…");
+            std::snprintf(buf, sizeof(buf), "對時中…");
             break;
         case State::kRegistering:
-            std::snprintf(buf, sizeof(buf), "注册设备中…");
+            std::snprintf(buf, sizeof(buf), "註冊設備中…");
             break;
         case State::kServerUnreachable:
-            std::snprintf(buf, sizeof(buf), "服务器无响应,稍后重试…");
+            std::snprintf(buf, sizeof(buf), "服務器無響應,稍後重試…");
             break;
         case State::kAwaitingPair:
-            std::snprintf(buf, sizeof(buf), "在管理端【添加设备】中输入:");
+            std::snprintf(buf, sizeof(buf), "在管理端【添加設備】中輸入:");
             show_code = true;
             break;
         case State::kAwaitingGroup:
-            // 后端 claim 已自动绑「第一个内容组」、create 第一个内容组也会反向绑;
-            // 走到这里 = owner 一个内容组都没有,直接告诉用户去创建。
-            std::snprintf(buf, sizeof(buf), "已绑定\n\n请在管理端创建内容组");
+            // 後端 claim 已自動綁「第一個內容組」、create 第一個內容組也會反向綁;
+            // 走到這裏 = owner 一個內容組都沒有,直接告訴用户去創建。
+            std::snprintf(buf, sizeof(buf), "已綁定\n\n請在管理端創建內容組");
             break;
         case State::kNetError:
-            std::snprintf(buf, sizeof(buf), "网络异常,稍后自动重试…");
+            std::snprintf(buf, sizeof(buf), "網絡異常,稍後自動重試…");
             break;
         case State::kSyncProgress:
             if (progress_name_[0]) {
-                std::snprintf(buf, sizeof(buf), "正在准备\n%s\n%u / %u", progress_name_, progress_cur_,
+                std::snprintf(buf, sizeof(buf), "正在準備\n%s\n%u / %u", progress_name_, progress_cur_,
                               progress_total_);
             } else {
-                std::snprintf(buf, sizeof(buf), "正在准备\n%u / %u", progress_cur_, progress_total_);
+                std::snprintf(buf, sizeof(buf), "正在準備\n%u / %u", progress_cur_, progress_total_);
             }
             break;
     }
 
     lv_label_set_text(text_label_, buf);
     if (show_code) {
-        // 配对码居中显示,提示文案放在码上方约 60px。
+        // 配對碼居中顯示,提示文案放在碼上方約 60px。
         lv_label_set_text(code_label_, pair_code_);
         lv_obj_clear_flag(code_label_, LV_OBJ_FLAG_HIDDEN);
         lv_obj_align(text_label_, LV_ALIGN_CENTER, 0, -52);

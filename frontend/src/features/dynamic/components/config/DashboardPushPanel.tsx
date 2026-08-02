@@ -41,7 +41,7 @@ export function DashboardPushPanel({
 
   return (
     <div className="space-y-3">
-      <p className="font-mono text-[10px] text-stone uppercase tracking-[0.18em]">数据推送 URL</p>
+      <p className="font-mono text-[10px] text-stone uppercase tracking-[0.18em]">數據推送 URL</p>
       <div className="flex gap-2 items-start">
         <code
           className={cn(
@@ -55,7 +55,7 @@ export function DashboardPushPanel({
           type="button"
           onClick={copy}
           className="px-2 py-1.5 text-stone hover:text-ink hover:bg-cream border border-ink flex-shrink-0"
-          title="复制"
+          title="複製"
         >
           {copied ? <Check size={14} /> : <Copy size={14} />}
         </button>
@@ -69,9 +69,9 @@ export function DashboardPushPanel({
         </pre>
       </details>
       <p className="font-sans text-[11px] text-stone italic leading-snug">
-        推送流程：① 复制 URL → ② 由你的系统/脚本 POST 数据 → ③ 设备下次唤醒时拉取并刷新屏幕。 URL
-        中的 contentId 即推送凭证（cuid 不可枚举），请勿公开分享，泄漏后只能删内容重建。
-        推送后不会立即亮屏，设备按预设周期或按键翻页时生效。
+        推送流程：① 複製 URL → ② 由你的系統/腳本 POST 數據 → ③ 設備下次喚醒時拉取並刷新屏幕。 URL
+        中的 contentId 即推送憑證（cuid 不可枚舉），請勿公開分享，泄漏後只能刪內容重建。
+        推送後不會立即亮屏，設備按預設週期或按鍵翻頁時生效。
       </p>
     </div>
   );

@@ -1,4 +1,4 @@
-// Mono Press 全局壳：masthead + 用户下拉。无 tab，只有 logo + dropdown。
+// Mono Press 全局殼：masthead + 用户下拉。無 tab，只有 logo + dropdown。
 
 import { Link, Outlet } from 'react-router-dom';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -24,18 +24,18 @@ export function Layout() {
                 Slate
               </p>
               <p className="font-sans text-[10px] text-stone leading-none mt-1 tracking-[0.2em] uppercase truncate">
-                案头那块墨水屏
+                案頭那塊墨水屏
               </p>
             </div>
           </Link>
 
-          {/* 右侧用户下拉 */}
+          {/* 右側用户下拉 */}
           <div className="flex items-center gap-2">
             {user && (
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger asChild>
                   <button
-                    aria-label="账号菜单"
+                    aria-label="賬號菜單"
                     className="group inline-flex items-center gap-2 h-9 pl-1.5 pr-3 text-[13px] text-stone border border-ink hover:bg-cream-deep transition-colors"
                   >
                     <span className="w-6 h-6 bg-ink text-paper flex items-center justify-center font-sans text-[11px] font-semibold">
@@ -55,7 +55,7 @@ export function Layout() {
                   >
                     <div className="px-3 pt-2 pb-2.5 border-b border-line mb-1">
                       <p className="text-[10px] text-stone uppercase tracking-[0.16em] font-mono">
-                        已登录
+                        已登錄
                       </p>
                       <p className="text-[13px] text-ink truncate font-sans mt-0.5">{user.email}</p>
                     </div>
@@ -64,7 +64,7 @@ export function Layout() {
                       className="flex items-center gap-3 mx-1 px-3 py-2 text-[13px] text-clay cursor-pointer hover:bg-cream outline-none"
                     >
                       <LogOut size={14} />
-                      退出登录
+                      退出登錄
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>
                 </DropdownMenu.Portal>

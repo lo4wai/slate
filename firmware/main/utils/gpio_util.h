@@ -12,11 +12,11 @@ inline SemaphoreHandle_t GpioHoldMutex() {
     return s_mutex;
 }
 
-// 把"hold_dis → set_level → hold_en"三段式打包成一个 inline。
-// 板上很多 rail 用 hold_en 锁电平避免 deep/light sleep 期间被 IO MUX 拉低,
-// 改电平时必须先 hold_dis,否则 set_level 不生效;再 hold_en 重新锁回去。
+// 把"hold_dis → set_level → hold_en"三段式打包成一個 inline。
+// 板上很多 rail 用 hold_en 鎖電平避免 deep/light sleep 期間被 IO MUX 拉低,
+// 改電平時必須先 hold_dis,否則 set_level 不生效;再 hold_en 重新鎖回去。
 //
-// 多个 task 可能同时改 rail/PA pin；这里用全局短临界区避免三段式交错。
+// 多個 task 可能同時改 rail/PA pin；這裏用全局短臨界區避免三段式交錯。
 inline void GpioWriteHold(gpio_num_t pin, int level) {
     ScopedMutexLock lock(GpioHoldMutex());
     gpio_hold_dis(pin);

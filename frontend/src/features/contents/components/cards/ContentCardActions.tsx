@@ -29,8 +29,8 @@ export function ContentCardActions({
       <button
         type="button"
         onClick={onEdit}
-        aria-label="编辑"
-        title="编辑"
+        aria-label="編輯"
+        title="編輯"
         className="p-1.5 text-stone hover:text-ink hover:bg-cream transition-colors"
       >
         <Pencil size={14} />
@@ -39,8 +39,8 @@ export function ContentCardActions({
         type="button"
         onClick={onDelete}
         disabled={deleteDisabled}
-        aria-label="删除"
-        title="删除"
+        aria-label="刪除"
+        title="刪除"
         className="p-1.5 text-stone hover:text-clay hover:bg-cream transition-colors disabled:opacity-50"
       >
         <Trash2 size={14} />

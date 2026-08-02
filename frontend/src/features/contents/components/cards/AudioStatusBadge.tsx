@@ -12,7 +12,7 @@ export function AudioStatusBadge({ status, etag, error }: AudioStatusBadgeProps)
     return (
       <span
         className="absolute top-2 right-2 bg-paper border border-ink text-ink p-1 pointer-events-none"
-        title="音频生成中"
+        title="音頻生成中"
       >
         <Loader2 size={11} className="animate-spin" />
       </span>
@@ -23,7 +23,7 @@ export function AudioStatusBadge({ status, etag, error }: AudioStatusBadgeProps)
     return (
       <span
         className="absolute top-2 right-2 bg-paper border border-clay text-clay px-1.5 font-mono text-[10px] pointer-events-none"
-        title={error ?? '音频生成失败'}
+        title={error ?? '音頻生成失敗'}
       >
         !
       </span>

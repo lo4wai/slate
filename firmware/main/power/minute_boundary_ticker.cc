@@ -9,18 +9,18 @@
 namespace {
 constexpr char kTag[] = "minute_boundary";
 
-// 触发点落在边界之后一点点，避免因调度抖动在边界前几毫秒触发、读到上一分钟。
+// 觸發點落在邊界之後一點點，避免因調度抖動在邊界前幾毫秒觸發、讀到上一分鐘。
 constexpr int64_t kBoundaryEpsilonMs = 50;
 constexpr int64_t kMinuteMs          = 60'000;
 
-// 距下一分钟边界的毫秒数（含 epsilon）。墙钟未同步时也能给出 ~60s 的稳定节拍。
+// 距下一分鐘邊界的毫秒數（含 epsilon）。牆鍾未同步時也能給出 ~60s 的穩定節拍。
 int64_t MsToNextBoundary() {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     const int64_t ms_into_min = (static_cast<int64_t>(tv.tv_sec) % 60) * 1000 + tv.tv_usec / 1000;
     int64_t       delay       = kMinuteMs - ms_into_min + kBoundaryEpsilonMs;
     if (delay <= kBoundaryEpsilonMs)
-        delay += kMinuteMs;  // 已过/正好在边界，推到下一分钟
+        delay += kMinuteMs;  // 已過/正好在邊界，推到下一分鐘
     return delay;
 }
 }  // namespace
@@ -62,7 +62,7 @@ void MinuteBoundaryTicker::TickCb(void* arg) {
     auto* self = static_cast<MinuteBoundaryTicker*>(arg);
 
     time_t now = time(nullptr);
-    if (now >= 1577836800) {  // 2020-01-01 之后才视为 SNTP 已同步；之前不发 tick，只续 arm
+    if (now >= 1577836800) {  // 2020-01-01 之後才視為 SNTP 已同步；之前不發 tick，只續 arm
         struct tm tm;
         localtime_r(&now, &tm);
         int last = self->last_minute_.load(std::memory_order_acquire);
@@ -71,6 +71,6 @@ void MinuteBoundaryTicker::TickCb(void* arg) {
             evt::PostSimple(UiEventKind::kMinuteTick, evt::kNoWait);
         }
     }
-    // 续 arm 到下一分钟边界。SNTP 校时若发生在本拍之前，这里用新墙钟重新对齐。
+    // 續 arm 到下一分鐘邊界。SNTP 校時若發生在本拍之前，這裏用新牆鍾重新對齊。
     self->ArmNextBoundary();
 }

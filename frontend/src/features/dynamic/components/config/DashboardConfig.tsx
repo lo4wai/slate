@@ -26,7 +26,7 @@ export function DashboardConfigPanel({
   onChange,
   dashboardData,
   onDashboardDataChange,
-  dataLabel = onDashboardDataChange ? '初始数据 JSON' : '当前数据 JSON',
+  dataLabel = onDashboardDataChange ? '初始數據 JSON' : '當前數據 JSON',
   contentId,
 }: {
   config: Extract<DynamicConfigT, { type: 'dashboard' }>;
@@ -41,7 +41,7 @@ export function DashboardConfigPanel({
   const customTemplate = config.template.kind === 'custom' ? config.template.template : null;
   const activeDescription =
     config.template.kind === 'custom'
-      ? '编辑 JSON 模板；数据由新建初始数据或推送接口提供，模板保存在内容配置中。'
+      ? '編輯 JSON 模板；數據由新建初始數據或推送接口提供，模板保存在內容配置中。'
       : DASHBOARD_SYSTEM_TEMPLATES[config.template.id].description;
   const updateCustomTemplate = useCallback(
     (template: DashboardTemplateT) => {
@@ -100,10 +100,10 @@ export function DashboardConfigPanel({
           }}
         >
           <SelectItem value={CUSTOM_DASHBOARD_TEMPLATE_VALUE} hint="JSON">
-            自定义模板
+            自定義模板
           </SelectItem>
           {DASHBOARD_SYSTEM_TEMPLATE_OPTIONS.map((item) => (
-            <SelectItem key={item.id} value={item.id} hint="内置">
+            <SelectItem key={item.id} value={item.id} hint="內置">
               {item.label}
             </SelectItem>
           ))}
@@ -115,7 +115,7 @@ export function DashboardConfigPanel({
 
       {templateSelection === CUSTOM_DASHBOARD_TEMPLATE_VALUE && (
         <JsonEditor
-          label="自定义模板 JSON"
+          label="自定義模板 JSON"
           value={templateDraft.text}
           error={templateDraft.error}
           minRows={8}

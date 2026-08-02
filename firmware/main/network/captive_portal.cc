@@ -36,21 +36,21 @@ CaptivePortal* PortalFromRequest(httpd_req_t* req) {
 
 bool ValidServerUrl(const std::string& url, std::string& error) {
     if (url.empty()) {
-        error = "服务端 URL 不能为空";
+        error = "服務端 URL 不能為空";
         return false;
     }
     if (url.size() > kMaxServerUrlLen) {
-        error = "服务端 URL 过长";
+        error = "服務端 URL 過長";
         return false;
     }
     for (unsigned char ch : url) {
         if (ch <= 0x20 || ch == 0x7F) {
-            error = "服务端 URL 含非法字符";
+            error = "服務端 URL 含非法字符";
             return false;
         }
     }
     if (url.rfind("https://", 0) != 0 && url.rfind("http://", 0) != 0) {
-        error = "服务端 URL 需以 http:// 或 https:// 开头";
+        error = "服務端 URL 需以 http:// 或 https:// 開頭";
         return false;
     }
     return true;
@@ -242,10 +242,10 @@ esp_err_t CaptivePortal::HandleSubmit(httpd_req_t* req) {
     httpd_resp_set_hdr(req, "Connection", "close");
     if (ok) {
         httpd_resp_send(req, R"({"success":true})", -1);
-        // 启异步 task：延迟 2 s 让浏览器收到 success 渲染 UI，然后通知上层
-        // （App::OnFinished 内部 portal.Stop + esp_restart）。
-        // 栈 8 KB：Stop 调链含 httpd_stop + esp_wifi_stop + esp_netif_destroy，
-        // 以及 esp_restart，4 KB 偏紧。
+        // 啓異步 task：延遲 2 s 讓瀏覽器收到 success 渲染 UI，然後通知上層
+        // （App::OnFinished 內部 portal.Stop + esp_restart）。
+        // 棧 8 KB：Stop 調鏈含 httpd_stop + esp_wifi_stop + esp_netif_destroy，
+        // 以及 esp_restart，4 KB 偏緊。
         if (portal && portal->on_finished_) {
             auto* ctx = new (std::nothrow) FinishTaskContext{portal->alive_, portal->on_finished_};
             if (!ctx) {
@@ -256,14 +256,14 @@ esp_err_t CaptivePortal::HandleSubmit(httpd_req_t* req) {
             BaseType_t r = xTaskCreate(&CaptivePortal::FinishTask, "portal_done", 8 * 1024, ctx, 3, nullptr);
             if (r != pdPASS) {
                 delete ctx;
-                // 创建失败(堆紧张):同步触发 finished,避免 AP 永远不关。
-                // 缺点是浏览器看不到 success 页(连接随即断),但比 AP 一直开着好。
+                // 創建失敗(堆緊張):同步觸發 finished,避免 AP 永遠不關。
+                // 缺點是瀏覽器看不到 success 頁(連接隨即斷),但比 AP 一直開着好。
                 ESP_LOGE(kTag, "finish task create failed action=inline");
                 portal->on_finished_(true);
             }
         }
     } else {
-        // 表单失败:回 {success:false, error:中文文案}。
+        // 表單失敗:回 {success:false, error:中文文案}。
         std::string body = "{\"success\":false,\"error\":" + json_utils::JsonStringLiteral(err_msg) + "}";
         httpd_resp_send(req, body.c_str(), body.size());
     }
@@ -318,9 +318,9 @@ bool CaptivePortal::Start() {
         return false;
     }
 
-    // 配 DHCP server 主动推送 "DNS = AP IP",让客户端把 DNS 查询发到我们这。
-    // 默认 dhcps 不发 DNS option,客户端会用之前 4G/家 wifi 配的 DNS,
-    // captive portal 探测就不会命中我们 → 不弹页。
+    // 配 DHCP server 主動推送 "DNS = AP IP",讓客户端把 DNS 查詢發到我們這。
+    // 默認 dhcps 不發 DNS option,客户端會用之前 4G/家 wifi 配的 DNS,
+    // captive portal 探測就不會命中我們 → 不彈頁。
     esp_netif_t* ap_netif = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
     if (ap_netif) {
         esp_netif_ip_info_t ip_info = {};
@@ -339,7 +339,7 @@ bool CaptivePortal::Start() {
         esp_netif_set_dns_info(ap_netif, ESP_NETIF_DNS_MAIN, &dns);
         esp_netif_dhcps_start(ap_netif);
 
-        // DNS 劫持服务:把所有查询响应到 AP IP
+        // DNS 劫持服務:把所有查詢響應到 AP IP
         dns_.Start(ip_info.ip);
     } else {
         ESP_LOGW(kTag, "dns hijack skipped reason=ap_netif_missing");
@@ -348,8 +348,8 @@ bool CaptivePortal::Start() {
     httpd_config_t cfg   = HTTPD_DEFAULT_CONFIG();
     cfg.max_uri_handlers = 8;
     cfg.uri_match_fn     = httpd_uri_match_wildcard;
-    // 默认 4 KB 栈不够：HandleSubmit 里调 Wifi::TryConnect（阻塞等 event）
-    // + ESP_LOG（vfprintf 含 UTF-8 中文消耗大），会触发 LoadProhibited panic。
+    // 默認 4 KB 棧不夠：HandleSubmit 裏調 Wifi::TryConnect（阻塞等 event）
+    // + ESP_LOG（vfprintf 含 UTF-8 中文消耗大），會觸發 LoadProhibited panic。
     cfg.stack_size = 8192;
     if (httpd_start(&server_, &cfg) != ESP_OK) {
         ESP_LOGE(kTag, "start failed reason=http_server_start_failed");

@@ -35,10 +35,10 @@ export const GroupsSection = memo(function GroupsSection({
     isPending: deletePending,
     getConfirmOptions: useCallback(
       (group) => ({
-        title: `删除「${group.name}」？`,
-        description: `这一组连同 ${group.content_count} 项内容的图片与音频会全部删除，不可逆。`,
+        title: `刪除「${group.name}」？`,
+        description: `這一組連同 ${group.content_count} 項內容的圖片與音頻會全部刪除，不可逆。`,
         destructive: true,
-        confirmText: '删除整组',
+        confirmText: '刪除整組',
       }),
       []
     ),
@@ -46,8 +46,8 @@ export const GroupsSection = memo(function GroupsSection({
       (group, callbacks) => deleteGroupMutate(group.id, callbacks),
       [deleteGroupMutate]
     ),
-    successToast: '已删除',
-    errorToast: '删除失败',
+    successToast: '已刪除',
+    errorToast: '刪除失敗',
   });
   const renderGroup = useCallback(
     (group: GroupSummaryT) => (
@@ -68,7 +68,7 @@ export const GroupsSection = memo(function GroupsSection({
           onSuccess: commit,
           onError: (err) => {
             rollback();
-            toast.error('排序保存失败', getApiErrorMessage(err));
+            toast.error('排序保存失敗', getApiErrorMessage(err));
           },
         }
       )
@@ -76,18 +76,18 @@ export const GroupsSection = memo(function GroupsSection({
 
   return (
     <Section
-      title="内容"
+      title="內容"
       badge={<FolderHeart size={18} />}
-      subtitle="支持图片和音频，音频会随图片同步播放"
+      subtitle="支持圖片和音頻，音頻會隨圖片同步播放"
       action={
         <Button onClick={() => setCreateOpen(true)} iconLeft={<Plus size={16} />} size="sm">
-          新建组
+          新建組
         </Button>
       }
     >
       {isPending ? (
         <div className="flex justify-center py-8">
-          <Spinner label="加载中" />
+          <Spinner label="加載中" />
         </div>
       ) : groups && groups.length > 0 ? (
         <SortableGrid
@@ -102,11 +102,11 @@ export const GroupsSection = memo(function GroupsSection({
       ) : (
         <EmptyState
           icon={<FolderHeart size={26} />}
-          title="尚无内容"
-          hint="新建组开始上传图片。设备会按顺序循环显示。"
+          title="尚無內容"
+          hint="新建組開始上傳圖片。設備會按順序循環顯示。"
           action={
             <Button onClick={() => setCreateOpen(true)} iconLeft={<Plus size={16} />}>
-              新建第一组
+              新建第一組
             </Button>
           }
         />
@@ -118,10 +118,10 @@ export const GroupsSection = memo(function GroupsSection({
         onCreate={async (name) => {
           try {
             await create.mutateAsync({ name });
-            toast.success('已创建');
+            toast.success('已創建');
             setCreateOpen(false);
           } catch (err) {
-            toast.error('创建失败', getApiErrorMessage(err));
+            toast.error('創建失敗', getApiErrorMessage(err));
           }
         }}
         isPending={create.isPending}

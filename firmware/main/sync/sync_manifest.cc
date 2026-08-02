@@ -147,8 +147,8 @@ bool SyncService::DownloadFramesToStage(cache::CacheWriter& writer, const std::s
             fm.content_etag    = f.content_etag;
             fm.image_etag      = f.image_etag;
             fm.audio_etag      = f.audio_etag;
-            // next_wake_sec<=0 视为非动态帧(不配 RTC timer)：0 曾被当成动态并被 60s
-            // 地板顶起来反复空醒。真正需要定时刷新的帧后端会给 >0 的秒数。
+            // next_wake_sec<=0 視為非動態幀(不配 RTC timer)：0 曾被當成動態並被 60s
+            // 地板頂起來反覆空醒。真正需要定時刷新的幀後端會給 >0 的秒數。
             fm.has_ttl = f.has_next_wake_sec && f.next_wake_sec > 0;
             fm.ttl_sec = fm.has_ttl ? static_cast<uint32_t>(f.next_wake_sec) : 0;
             if (!writer.WriteFrameMeta(f.seq, fm)) {
@@ -296,7 +296,7 @@ bool SyncService::SyncCurrentContent(const std::string& gid, const api::ContentM
     next_meta.content_etag    = f.content_etag;
     next_meta.image_etag      = f.image_etag;
     next_meta.audio_etag      = f.audio_etag;
-    // 同上：next_wake_sec<=0 当非动态帧，避免 0 被 60s 地板顶起来反复空醒。
+    // 同上：next_wake_sec<=0 當非動態幀，避免 0 被 60s 地板頂起來反覆空醒。
     next_meta.has_ttl = f.has_next_wake_sec && f.next_wake_sec > 0;
     next_meta.ttl_sec = next_meta.has_ttl ? static_cast<uint32_t>(f.next_wake_sec) : 0;
 

@@ -95,7 +95,7 @@ void ApiClient::SetServerUrl(const std::string& url) {
         std::lock_guard<std::mutex> lock(state_mutex_);
         server_url_ = url;
     }
-    // host 可能变了,丢弃旧连接。锁顺序:此处不持 state_mutex_ 再取 conn_mutex_。
+    // host 可能變了,丟棄舊連接。鎖順序:此處不持 state_mutex_ 再取 conn_mutex_。
     ResetConnection();
 }
 
@@ -115,7 +115,7 @@ using json_utils::JsonBool;
 using json_utils::JsonInt;
 using json_utils::JsonString;
 
-// 从 esp_http_client 读响应头里的 ETag。
+// 從 esp_http_client 讀響應頭裏的 ETag。
 std::string ReadEtagHeader(esp_http_client_handle_t client) {
     char* val = nullptr;
     if (esp_http_client_get_header(client, "ETag", &val) == ESP_OK && val) {
@@ -191,10 +191,10 @@ void ParseContentMeta(cJSON* item, ContentMeta& out) {
 
 }  // namespace
 
-// API 路径前缀(对应 backend shared API_PREFIX = "/api/v1")。
+// API 路徑前綴(對應 backend shared API_PREFIX = "/api/v1")。
 constexpr char kApiPrefix[] = "/api/v1";
 
-// 取得可复用的持久 client。base_url 变化(换 host)时重建。调用者持 conn_mutex_。
+// 取得可複用的持久 client。base_url 變化(換 host)時重建。調用者持 conn_mutex_。
 esp_http_client_handle_t ApiClient::EnsureClientLocked(const std::string& base_url) {
     if (conn_ && conn_base_url_ != base_url) {
         esp_http_client_cleanup(conn_);
@@ -206,10 +206,10 @@ esp_http_client_handle_t ApiClient::EnsureClientLocked(const std::string& base_u
         cfg.url                      = base_url.c_str();
         cfg.timeout_ms               = kDefaultTimeoutMs;
         cfg.disable_auto_redirect    = false;
-        // 挂 IDF 内置 root CA bundle:HTTPS 必备(否则 TLS 握手无 CA 校验失败)。
-        // 注意调用方需要确保系统时间已对时(SNTP),否则证书 NotBefore/NotAfter 校验过不去。
+        // 掛 IDF 內置 root CA bundle:HTTPS 必備(否則 TLS 握手無 CA 校驗失敗)。
+        // 注意調用方需要確保系統時間已對時(SNTP),否則證書 NotBefore/NotAfter 校驗過不去。
         cfg.crt_bundle_attach = esp_crt_bundle_attach;
-        // keep-alive:同一 host 的多次请求复用 TCP/TLS,免去每请求重做握手。
+        // keep-alive:同一 host 的多次請求複用 TCP/TLS,免去每請求重做握手。
         cfg.keep_alive_enable = true;
         conn_                 = esp_http_client_init(&cfg);
         if (conn_)
@@ -218,7 +218,7 @@ esp_http_client_handle_t ApiClient::EnsureClientLocked(const std::string& base_u
     return conn_;
 }
 
-// 销毁持久连接(进入异常态、或主动回收内存时)。调用者持 conn_mutex_。
+// 銷燬持久連接(進入異常態、或主動回收內存時)。調用者持 conn_mutex_。
 void ApiClient::DropConnectionLocked() {
     if (conn_) {
         esp_http_client_cleanup(conn_);
@@ -232,15 +232,15 @@ void ApiClient::ResetConnection() {
     DropConnectionLocked();
 }
 
-// 同步 HTTP 请求。
-//   path/method/body_in - 请求(path 已带 /api/v1 前缀)
-//   body_out            - 响应 body
-//   status_out          - HTTP 状态码(可空)
-//   if_none_match       - 非空时设 If-None-Match 头
-//   etag_out            - 响应头 ETag(可空,去引号)
-//   need_auth           - true:加 Authorization: Bearer secret_。register 端点设 false。
+// 同步 HTTP 請求。
+//   path/method/body_in - 請求(path 已帶 /api/v1 前綴)
+//   body_out            - 響應 body
+//   status_out          - HTTP 狀態碼(可空)
+//   if_none_match       - 非空時設 If-None-Match 頭
+//   etag_out            - 響應頭 ETag(可空,去引號)
+//   need_auth           - true:加 Authorization: Bearer secret_。register 端點設 false。
 //
-// 401:仅对 need_auth=true 的请求触发 unauth_cb (注册路径无鉴权,401 没意义)。
+// 401:僅對 need_auth=true 的請求觸發 unauth_cb (註冊路徑無鑑權,401 沒意義)。
 bool ApiClient::DoRequest(const std::string& path, esp_http_client_method_t method, const std::string& body_in,
                           std::vector<uint8_t>& body_out, int* status_out, const std::string& if_none_match,
                           std::string* etag_out, bool need_auth, int timeout_ms) {
@@ -272,14 +272,14 @@ bool ApiClient::DoRequest(const std::string& path, esp_http_client_method_t meth
         normalized_base.pop_back();
     const std::string full = normalized_base + path;
 
-    // 防止异常响应耗尽堆内存。上限与后端音频转码 60 秒 PCM 上限对齐；
-    // JSON API 与 1bpp 图片远小于这个值，音频资源也不会被合法 TTS 误拦截。
+    // 防止異常響應耗盡堆內存。上限與後端音頻轉碼 60 秒 PCM 上限對齊；
+    // JSON API 與 1bpp 圖片遠小於這個值，音頻資源也不會被合法 TTS 誤攔截。
     constexpr size_t kMaxResponseBytes = static_cast<size_t>(AUDIO_MAX_PCM_BYTES);
 
-    // 整个请求事务串行化:持久 conn_ 不能并发使用。
+    // 整個請求事務串行化:持久 conn_ 不能併發使用。
     std::lock_guard<std::mutex> conn_lock(conn_mutex_);
 
-    // 最多两次尝试:复用的 keep-alive socket 可能已被对端关闭,open 失败时重建重试一次。
+    // 最多兩次嘗試:複用的 keep-alive socket 可能已被對端關閉,open 失敗時重建重試一次。
     for (int attempt = 0; attempt < 2; ++attempt) {
         const bool               reused = (conn_ != nullptr);
         esp_http_client_handle_t client = EnsureClientLocked(normalized_base);
@@ -293,7 +293,7 @@ bool ApiClient::DoRequest(const std::string& path, esp_http_client_method_t meth
         esp_http_client_set_method(client, method);
         esp_http_client_set_timeout_ms(client, timeout_ms);
 
-        // 复用 handle 时上次请求设置的 header 会残留,先逐个清掉再按需设置。
+        // 複用 handle 時上次請求設置的 header 會殘留,先逐個清掉再按需設置。
         esp_http_client_delete_header(client, "Authorization");
         esp_http_client_delete_header(client, "Content-Type");
         esp_http_client_delete_header(client, "If-None-Match");
@@ -308,14 +308,14 @@ bool ApiClient::DoRequest(const std::string& path, esp_http_client_method_t meth
             esp_http_client_set_header(client, "If-None-Match", h.c_str());
         }
 
-        // open 会建立连接并发送请求头。复用的死 socket 在此暴露,可安全重试(请求体尚未发出)。
+        // open 會建立連接併發送請求頭。複用的死 socket 在此暴露,可安全重試(請求體尚未發出)。
         esp_err_t err = esp_http_client_open(client, body_in.size());
         if (err != ESP_OK) {
             ESP_LOGW(kTag, "http open failed path=%s elapsed_ms=%lld err=%s", path.c_str(),
                      (long long)(time_utils::NowMs() - started_ms), esp_err_to_name(err));
             DropConnectionLocked();
             if (reused && attempt == 0)
-                continue;  // 可能是过期 keep-alive socket,用新连接重试
+                continue;  // 可能是過期 keep-alive socket,用新連接重試
             return false;
         }
         if (!body_in.empty()) {
@@ -324,7 +324,7 @@ bool ApiClient::DoRequest(const std::string& path, esp_http_client_method_t meth
                 ESP_LOGW(kTag, "http write short path=%s elapsed_ms=%lld written=%d expected=%u", path.c_str(),
                          (long long)(time_utils::NowMs() - started_ms), wn, (unsigned)body_in.size());
                 DropConnectionLocked();
-                return false;  // 请求头已发出,不重试(POST 非幂等)
+                return false;  // 請求頭已發出,不重試(POST 非冪等)
             }
         }
 
@@ -396,7 +396,7 @@ bool ApiClient::DoRequest(const std::string& path, esp_http_client_method_t meth
             DropConnectionLocked();
             return false;
         }
-        // 成功:close 但不 cleanup,keep-alive 保留 socket 供后续请求复用。
+        // 成功:close 但不 cleanup,keep-alive 保留 socket 供後續請求複用。
         esp_http_client_close(client);
 
         if (status == 304) {
@@ -491,7 +491,7 @@ bool ParseDeviceState(const std::string& json, DeviceState& out) {
 
 }  // namespace
 
-// ─── 设备协议端点 ────────────────────────────────────────────────
+// ─── 設備協議端點 ────────────────────────────────────────────────
 bool ApiClient::Register(RegisterResult& out) {
     std::string mac;
     {
@@ -545,7 +545,7 @@ bool ApiClient::Poll(const Telemetry& tel, DeviceState& out) {
         return false;
     }
 
-    // 仅在有非默认值的字段时构造 telemetry 对象。
+    // 僅在有非默認值的字段時構造 telemetry 對象。
     bool has_telemetry = tel.battery_pct >= 0 || tel.rssi_dbm != 0 || !tel.fw_version.empty() ||
                          !tel.current_group.empty() || tel.current_content_seq >= 0 || !tel.wake_reason.empty() ||
                          !tel.current_content_etag.empty() || !tel.manifest_etag.empty();
@@ -646,7 +646,7 @@ bool ApiClient::GetManifest(const std::string& group_id, const std::string& if_n
     if (!root)
         return false;
 
-    // 协议 v3：group 子对象 { id, structure_etag, manifest_etag, name, sort_order, position }
+    // 協議 v3：group 子對象 { id, structure_etag, manifest_etag, name, sort_order, position }
     cJSON* group = cJSON_GetObjectItemCaseSensitive(root, proto::kGroup);
     if (!cJSON_IsObject(group)) {
         ESP_LOGW(kTag, "manifest response invalid reason=group_missing");

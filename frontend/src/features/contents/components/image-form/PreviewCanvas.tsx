@@ -47,18 +47,18 @@ export function PreviewCanvas({
     <div className="frame-preview-surface">
       {existingImagePending && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="font-serif italic text-[13px] text-stone-light">加载中…</span>
+          <span className="font-serif italic text-[13px] text-stone-light">加載中…</span>
         </div>
       )}
       {!imageFile && !existingImage && !existingImagePending && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="font-serif italic text-[13px] text-stone-light">选图后显示预览</span>
+          <span className="font-serif italic text-[13px] text-stone-light">選圖後顯示預覽</span>
         </div>
       )}
       {imageFile && (
         <div className="absolute inset-0 flex items-end justify-center pb-3 pointer-events-none">
           <span className="font-serif italic text-[13px] text-stone-light">
-            拖拽定位 · 滑块缩放
+            拖拽定位 · 滑塊縮放
           </span>
         </div>
       )}

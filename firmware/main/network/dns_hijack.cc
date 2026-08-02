@@ -87,10 +87,10 @@ bool DnsHijack::StopLocked(TickType_t wait_ticks) {
     int sock = fd_.exchange(-1);
     if (sock >= 0) {
         shutdown(sock, SHUT_RDWR);
-        close(sock);  // recvfrom 返 -1 后 Run 看 running_=false 即退出
+        close(sock);  // recvfrom 返 -1 後 Run 看 running_=false 即退出
     }
     if (exit_sem_ && had_task) {
-        // 等 task 真正退出再返回。2s 兜底:即便 lwip 出意外阻塞,Stop 也不会永挂。
+        // 等 task 真正退出再返回。2s 兜底:即便 lwip 出意外阻塞,Stop 也不會永掛。
         if (xSemaphoreTake(exit_sem_, wait_ticks) != pdTRUE) {
             ESP_LOGW(kTag, "stop timeout");
             return false;
@@ -118,10 +118,10 @@ void DnsHijack::Run() {
         if (!running_.load())
             break;
         if (len < 12)
-            continue;  // DNS header ≥ 12 字节
+            continue;  // DNS header ≥ 12 字節
 
-        // 标准 DNS 响应:把请求 header 改成 response,answer count=1,
-        // 在尾部加一条 A record 指向 gateway。
+        // 標準 DNS 響應:把請求 header 改成 response,answer count=1,
+        // 在尾部加一條 A record 指向 gateway。
         buf[2] |= 0x80;  // QR=1 (response)
         buf[3] = 0x80;   // RA=1, clear any query RCODE bits
         buf[7] = 1;      // ANCOUNT=1

@@ -1,4 +1,4 @@
-// Mono Press 图片 dropzone — 虚线框，0 圆角。
+// Mono Press 圖片 dropzone — 虛線框，0 圓角。
 
 import { useDropzone } from 'react-dropzone';
 import { ImagePlus } from 'lucide-react';
@@ -38,14 +38,14 @@ export function ImageDropzone({ isEdit, imageFile, onPick }: ImageDropzoneProps)
         <>
           <p className="font-serif text-[14px] text-ink truncate">{imageFile.name}</p>
           <p className="font-sans text-[11px] text-stone mt-0.5">
-            {formatBytes(imageFile.size)} · 点击换图
+            {formatBytes(imageFile.size)} · 點擊換圖
           </p>
         </>
       ) : isEdit ? (
-        <p className="font-sans text-[13px] text-stone">拖一张图替换原图，不传则保留</p>
+        <p className="font-sans text-[13px] text-stone">拖一張圖替換原圖，不傳則保留</p>
       ) : (
         <>
-          <p className="font-sans text-[13px] text-stone">拖图至此或点击选择</p>
+          <p className="font-sans text-[13px] text-stone">拖圖至此或點擊選擇</p>
           <p className="font-sans text-[11px] text-stone-light mt-0.5">
             PNG / JPG / WEBP / GIF / BMP
           </p>

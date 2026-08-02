@@ -30,7 +30,7 @@ export function DynamicCreateForm({ gid, type, form, header, onDone }: DynamicCr
   async function submitContent() {
     const parsed = form.submitConfig();
     if (!parsed.ok) {
-      toast.error('配置有误', parsed.error);
+      toast.error('配置有誤', parsed.error);
       return;
     }
     try {
@@ -40,10 +40,10 @@ export function DynamicCreateForm({ gid, type, form, header, onDone }: DynamicCr
         frame_name: parsed.frameName,
         initial_data: parsed.dashboardData,
       });
-      toast.success('已创建');
+      toast.success('已創建');
       onDone();
     } catch (err) {
-      toast.error('创建失败', getApiErrorMessage(err));
+      toast.error('創建失敗', getApiErrorMessage(err));
     }
   }
 
@@ -77,14 +77,14 @@ export function DynamicCreateForm({ gid, type, form, header, onDone }: DynamicCr
             showAudio={showDynamicAudio}
             dashboardData={form.dashboardData}
             onDashboardDataChange={form.setDashboardData}
-            dashboardDataLabel="初始数据 JSON"
+            dashboardDataLabel="初始數據 JSON"
           />
         ) : null
       }
       actions={
         <FormActions
           onCancel={onDone}
-          submitLabel="创建"
+          submitLabel="創建"
           disabled={!form.canSubmit}
           submitting={createDynamic.isPending}
         />

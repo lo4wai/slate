@@ -58,7 +58,7 @@ export function DevicesSection({ devices, groups, isPending }: DevicesSectionPro
           onSuccess: commit,
           onError: (err) => {
             rollback();
-            toast.error('排序保存失败', getApiErrorMessage(err));
+            toast.error('排序保存失敗', getApiErrorMessage(err));
           },
         }
       )
@@ -67,18 +67,18 @@ export function DevicesSection({ devices, groups, isPending }: DevicesSectionPro
   return (
     <>
       <Section
-        title="设备"
+        title="設備"
         badge={<MonitorSmartphone size={18} />}
-        subtitle="设备通过 WiFi 连接，自动同步显示内容"
+        subtitle="設備通過 WiFi 連接，自動同步顯示內容"
         action={
           <Button onClick={() => setAddOpen(true)} iconLeft={<Cpu size={14} />} size="sm">
-            添加设备
+            添加設備
           </Button>
         }
       >
         {isPending ? (
           <div className="flex justify-center py-8">
-            <Spinner label="加载中" />
+            <Spinner label="加載中" />
           </div>
         ) : devices && devices.length > 0 ? (
           <SortableGrid
@@ -93,7 +93,7 @@ export function DevicesSection({ devices, groups, isPending }: DevicesSectionPro
         ) : (
           <EmptyState
             icon={<MonitorSmartphone size={26} />}
-            title="尚无设备"
+            title="尚無設備"
             action={
               <Button onClick={() => setAddOpen(true)} iconLeft={<Cpu size={16} />}>
                 添加第一台

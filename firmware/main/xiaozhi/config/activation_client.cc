@@ -254,7 +254,7 @@ ActivationConfigResult ActivationClient::Fetch() {
 
     esp_http_client_handle_t client = esp_http_client_init(&cfg);
     if (!client) {
-        result.error = "HTTP 初始化失败";
+        result.error = "HTTP 初始化失敗";
         return result;
     }
     SetupHeaders(client, device_id, client_id, user_agent, serial_number);
@@ -278,7 +278,7 @@ ActivationConfigResult ActivationClient::Fetch() {
 
     cJSON* root = cJSON_Parse(body.c_str());
     if (!root) {
-        result.error = "配置响应不是 JSON";
+        result.error = "配置響應不是 JSON";
         return result;
     }
 

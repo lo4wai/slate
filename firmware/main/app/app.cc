@@ -107,7 +107,7 @@ void ConfigureLogLevels() {
 App::App()  = default;
 App::~App() = default;
 
-// ── 子系统初始化 ─────────────────────────────────────────────────────
+// ── 子系統初始化 ─────────────────────────────────────────────────────
 
 void App::InitStorage() {
     esp_err_t err = nvs_flash_init();
@@ -166,8 +166,8 @@ bool App::ReadBattery(int* mv, int* pct) {
 
 void App::StartUiLoop() {
     ui_loop_running_.store(true, std::memory_order_release);
-    // ui_loop 8 KB：与 home_worker 一致；LVGL render+flush_cb 调用栈装得下，
-    // esp_timer task / button cb task 装不下（栈 3584 B）。
+    // ui_loop 8 KB：與 home_worker 一致；LVGL render+flush_cb 調用棧裝得下，
+    // esp_timer task / button cb task 裝不下（棧 3584 B）。
     ESP_LOGD(kTag, "task start name=ui_loop");
     BaseType_t ok = xTaskCreatePinnedToCore(&App::UiLoopEntry, "ui_loop", 8 * 1024, this, 5, nullptr, 0);
     configASSERT(ok == pdPASS);
@@ -296,7 +296,7 @@ void App::UiLoopTask() {
     while (ui_loop_running_.load(std::memory_order_acquire)) {
         UiEvent e;
         if (!evt::Wait(&e, pdMS_TO_TICKS(1000))) {
-            // 1s 超时只是为了让 SleepManager 有机会做 Tick；不强制每秒做事。
+            // 1s 超時只是為了讓 SleepManager 有機會做 Tick；不強制每秒做事。
             sleep_mgr_.Tick(time_utils::NowMs());
             continue;
         }
@@ -326,7 +326,7 @@ void App::UiLoopTask() {
         }
         scene_stack_.Dispatch(e);
         sleep_mgr_.OnEvent(e);
-        // 供电状态变化时重配 light sleep：插 USB 关、拔掉(电池)开。
+        // 供電狀態變化時重配 light sleep：插 USB 關、拔掉(電池)開。
         if (e.kind == UiEventKind::kChargeChanged) {
             ESP_LOGD(kTag, "power mode light_sleep=%d", ShouldEnableLightSleep(e.u.charge.present) ? 1 : 0);
             ConfigurePm(ShouldEnableLightSleep(e.u.charge.present));
@@ -363,13 +363,13 @@ void App::AttachInputs() {
 
     board->boot_btn()->OnClick(post_button(UiEventKind::kButtonShort, ButtonId::kEnter));
     board->boot_btn()->OnDoubleClick(post_button(UiEventKind::kButtonDouble, ButtonId::kEnter));
-    // ENTER 长按 1s → frame_scene 接 ButtonLong{kEnter} push SettingsScene。
+    // ENTER 長按 1s → frame_scene 接 ButtonLong{kEnter} push SettingsScene。
     board->boot_btn()->OnLongPress(post_button(UiEventKind::kButtonLong, ButtonId::kEnter));
 
-    // 充电状态变化转发到 EventBus（HAL 不直接知道 EventBus 存在）
+    // 充電狀態變化轉發到 EventBus（HAL 不直接知道 EventBus 存在）
     Board::Get().charge()->OnStateChanged([](const ChargeStatus::Snapshot& snap) { PostChargeSnapshot(snap); });
 
-    // WiFi 断线转 EventBus（重连成功事件 wifi.cc 内部已处理；这里只接 disconnect）
+    // WiFi 斷線轉 EventBus（重連成功事件 wifi.cc 內部已處理；這裏只接 disconnect）
     Wifi::Get().OnDisconnected([](int /*reason*/) { evt::PostWifiState(false, 0); });
 }
 
@@ -383,11 +383,11 @@ bool App::InitWifiAndSync(cred::Credentials& creds, bool background_refresh) {
              creds.wifi_ssid.c_str(), creds.device_secret.empty() ? 0 : 1);
     Wifi::Get().Init();
 
-    // poll 收 401 → emit kSecretInvalid;UiLoop 拦下来在主线程清 NVS + esp_restart。
+    // poll 收 401 → emit kSecretInvalid;UiLoop 攔下來在主線程清 NVS + esp_restart。
     api::SetUnauthorizedHandler([]() { evt::PostSimple(UiEventKind::kSecretInvalid); });
 
     if (setup_flow::TryConnectAndSetup(creds)) {
-        // 连上 → 状态栏立即显示 wifi 图标
+        // 連上 → 狀態欄立即顯示 wifi 圖標
         ESP_LOGI(kTag, "network setup done sync_initial=%s", background_refresh ? "background_refresh" : "user_active");
         evt::PostWifiState(true, Wifi::Get().GetRssi());
 
@@ -415,10 +415,10 @@ void App::StartPortal() {
         c.wifi_ssid  = s.ssid;
         c.wifi_pwd   = s.password;
         c.server_url = s.server_url;
-        // device_id/device_secret 留空:配网完成 esp_restart 后 InitWifiAndSync 看到无 secret
-        // → 走 register 流。设备命名留到 Web 端 PUT /devices/:id 完成绑定后再做。
+        // device_id/device_secret 留空:配網完成 esp_restart 後 InitWifiAndSync 看到無 secret
+        // → 走 register 流。設備命名留到 Web 端 PUT /devices/:id 完成綁定後再做。
         if (!cred::Save(c)) {
-            out_error = "凭据保存失败,请重试";
+            out_error = "憑據保存失敗,請重試";
             ESP_LOGE(kTag, "credential save failed");
             return false;
         }
@@ -436,10 +436,10 @@ void App::StartPortal() {
 }
 
 void App::StartSleep() {
-    // 注册 charge callback 时设备可能已经在充电(USB 接着启动),但 ChargeStatus
-    // 内部已经在 Init 时把 snapshot 设到 kCharging,callback 不会因"未变化"而再触发。
-    // 这里主动 Post 一次让 SleepManager 同步初始 paused_ 状态,免得"开机就充电"
-    // 场景被误判为闲置 5min 后睡。
+    // 註冊 charge callback 時設備可能已經在充電(USB 接着啓動),但 ChargeStatus
+    // 內部已經在 Init 時把 snapshot 設到 kCharging,callback 不會因"未變化"而再觸發。
+    // 這裏主動 Post 一次讓 SleepManager 同步初始 paused_ 狀態,免得"開機就充電"
+    // 場景被誤判為閒置 5min 後睡。
     auto snap = Board::Get().charge()->Get();
     ESP_LOGD(kTag, "sleep start charge_present=%d charging=%d full=%d no_battery=%d", snap.power_present ? 1 : 0,
              snap.charging ? 1 : 0, snap.full ? 1 : 0, snap.no_battery ? 1 : 0);
@@ -447,16 +447,16 @@ void App::StartSleep() {
 }
 
 bool App::ShouldEnableLightSleep(bool power_present) const {
-    // 仅「电池供电 + 非配网门户」时开自动 light sleep：
-    //   - USB 供电：关，避免影响 CDC/JTAG 控制台（sleep_cpu_configure 会打 E 级 log）；
-    //     且充电时本就暂停深睡，省电意义小。
-    //   - 配网门户(SoftAP)：关，AP 模式需保持响应，light sleep 会拖累配网。
-    // 音频播放/对话期间由 AudioPlayer 持有 NO_LIGHT_SLEEP 锁，避免 I2S 欠载卡顿。
+    // 僅「電池供電 + 非配網門户」時開自動 light sleep：
+    //   - USB 供電：關，避免影響 CDC/JTAG 控制枱（sleep_cpu_configure 會打 E 級 log）；
+    //     且充電時本就暫停深睡，省電意義小。
+    //   - 配網門户(SoftAP)：關，AP 模式需保持響應，light sleep 會拖累配網。
+    // 音頻播放/對話期間由 AudioPlayer 持有 NO_LIGHT_SLEEP 鎖，避免 I2S 欠載卡頓。
     return !power_present && decision_.mode != boot_mode::Mode::kPortal;
 }
 
 void App::ConfigurePm(bool light_sleep_enable) {
-    // DFS（80~240 MHz）始终开；light_sleep_enable 按供电/模式动态切换。
+    // DFS（80~240 MHz）始終開；light_sleep_enable 按供電/模式動態切換。
     esp_pm_config_t pm = {
         .max_freq_mhz       = 240,
         .min_freq_mhz       = 80,
@@ -494,8 +494,8 @@ void App::Init() {
     policy.idle_timeout_min = CONFIG_SLATE_IDLE_DEEP_SLEEP_MIN;
     policy.disabled         = (decision_.mode == boot_mode::Mode::kPortal);
     sleep_mgr_.Init(policy);
-    // 阻止深睡的两个来源：语音会话活动中、以及一次 sync 突发(大文件下载)进行中。
-    // 任一持续阻塞超过 SleepManager 看门狗上限时会被强制打断回睡，避免卡死耗光电池。
+    // 阻止深睡的兩個來源：語音會話活動中、以及一次 sync 突發(大文件下載)進行中。
+    // 任一持續阻塞超過 SleepManager 看門狗上限時會被強制打斷回睡，避免卡死耗光電池。
     sleep_mgr_.SetSleepBlocker(
         []() { return xiaozhi::XiaozhiService::Get().BlocksSleep() || SyncService::Get().IsBusy(); });
     power_shutdown::SetPreShutdownHook([]() { xiaozhi::XiaozhiService::Get().SuspendForSleep(); });
@@ -516,7 +516,7 @@ void App::Init() {
             const bool net_ok = InitWifiAndSync(creds, true);
             if (!net_ok) {
                 ESP_LOGW(kTag, "background refresh network failed action=deep_sleep");
-                // 联系不上服务器：递增退避计数，下次 timer wake 间隔指数拉长，避免空醒。
+                // 聯繫不上服務器：遞增退避計數，下次 timer wake 間隔指數拉長，避免空醒。
                 power_state::RecordTimerWakeResult(false);
                 evt::PostSimple(UiEventKind::kBgRefreshDone, portMAX_DELAY);
             }
@@ -545,8 +545,8 @@ void App::Init() {
 }
 
 void App::Run() {
-    // main task Init 完毕。释放栈，让 ui_loop / sync / charge_tick / audio / epd_refresh
-    // 各自后台跑。直接 return 会被 IDF abort，必须 vTaskDelete。
+    // main task Init 完畢。釋放棧，讓 ui_loop / sync / charge_tick / audio / epd_refresh
+    // 各自後台跑。直接 return 會被 IDF abort，必須 vTaskDelete。
     ESP_LOGD(kTag, "task delete name=main");
     vTaskDelete(nullptr);
 }

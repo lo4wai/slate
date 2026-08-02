@@ -27,45 +27,45 @@ function LoginAuthPage() {
     e.preventDefault();
     await authForm.run(
       () => login({ identifier, password }, redirectTo),
-      '登录失败，请检查账号和密码'
+      '登錄失敗，請檢查賬號和密碼'
     );
   }
 
   return (
     <AuthFormLayout
-      title="登录"
-      subtitle="登录后管理墨笺与内容。"
-      submitLabel="进入"
+      title="登錄"
+      subtitle="登錄後管理墨箋與內容。"
+      submitLabel="進入"
       loading={authForm.loading}
       error={authForm.error}
       onSubmit={onSubmit}
       footer={
         <p className="mt-7 text-center font-sans text-[13px] text-stone">
-          还没有账号？{' '}
+          還沒有賬號？{' '}
           <Link to={appRoutes.register} className="text-ink border-b border-ink">
-            立即注册
+            立即註冊
           </Link>
         </p>
       }
     >
       <Input
-        label="账号或邮箱"
+        label="賬號或郵箱"
         type="text"
         value={identifier}
         onChange={(e) => setIdentifier(e.target.value)}
         autoFocus
         required
         autoComplete="username"
-        placeholder="用户名或邮箱"
+        placeholder="用户名或郵箱"
       />
       <Input
-        label="密码"
+        label="密碼"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
         autoComplete="current-password"
-        placeholder="请输入密码"
+        placeholder="請輸入密碼"
       />
     </AuthFormLayout>
   );
@@ -103,23 +103,23 @@ function RegisterAuthPage() {
 
     await authForm.run(
       () => register({ email: trimmedEmail, username, password }, redirectTo),
-      '注册失败，请稍后再试'
+      '註冊失敗，請稍後再試'
     );
   }
 
   return (
     <AuthFormLayout
-      title="注册"
-      subtitle="创建账号，开始管理墨笺与内容。"
-      submitLabel="创建账号"
+      title="註冊"
+      subtitle="創建賬號，開始管理墨箋與內容。"
+      submitLabel="創建賬號"
       loading={authForm.loading}
       error={authForm.error}
       onSubmit={onSubmit}
       footer={
         <p className="mt-7 text-center font-sans text-[13px] text-stone">
-          已有账号？{' '}
+          已有賬號？{' '}
           <Link to={appRoutes.login} className="text-ink border-b border-ink">
-            去登录
+            去登錄
           </Link>
         </p>
       }
@@ -132,11 +132,11 @@ function RegisterAuthPage() {
         autoFocus
         required
         autoComplete="username"
-        placeholder="字母、数字、下划线，3-32 位"
+        placeholder="字母、數字、下劃線，3-32 位"
         error={fieldErrors.username}
       />
       <Input
-        label="邮箱"
+        label="郵箱"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -146,25 +146,25 @@ function RegisterAuthPage() {
         error={fieldErrors.email}
       />
       <Input
-        label="密码"
+        label="密碼"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
         minLength={8}
         autoComplete="new-password"
-        placeholder="请输入密码"
+        placeholder="請輸入密碼"
         error={fieldErrors.password}
       />
       <Input
-        label="确认密码"
+        label="確認密碼"
         type="password"
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
         required
         minLength={8}
         autoComplete="new-password"
-        placeholder="再次输入密码"
+        placeholder="再次輸入密碼"
         error={fieldErrors.confirm}
       />
     </AuthFormLayout>
@@ -185,16 +185,16 @@ function validateRegisterForm({
   confirm: string;
 }): { field: RegisterField; message: string } | null {
   if (!/^[a-zA-Z0-9_]{3,32}$/.test(username)) {
-    return { field: 'username', message: '用户名只能包含字母、数字、下划线，3-32 位' };
+    return { field: 'username', message: '用户名只能包含字母、數字、下劃線，3-32 位' };
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { field: 'email', message: '请输入有效的邮箱地址' };
+    return { field: 'email', message: '請輸入有效的郵箱地址' };
   }
   if (password.length < 8) {
-    return { field: 'password', message: '密码至少 8 位' };
+    return { field: 'password', message: '密碼至少 8 位' };
   }
   if (password !== confirm) {
-    return { field: 'confirm', message: '两次输入的密码不一致' };
+    return { field: 'confirm', message: '兩次輸入的密碼不一致' };
   }
   return null;
 }

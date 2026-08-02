@@ -1,12 +1,12 @@
-// 设备详情 modal — 取代了原 /devices/:did 单独路由页。
+// 設備詳情 modal — 取代了原 /devices/:did 單獨路由頁。
 //
-// 内容:
-//   ① 标题区:在线状态点 + MAC + 设备名(铅笔图标 inline 改名)
-//   ② 在播:当前在播组 + 切换 selector
-//   ③ metadata 网格:电量 / 信号 / 固件 / 心跳
-//   ④ 危险区:解绑(把 owner 置 null,素材保留)
+// 內容:
+//   ① 標題區:在線狀態點 + MAC + 設備名(鉛筆圖標 inline 改名)
+//   ② 在播:當前在播組 + 切換 selector
+//   ③ metadata 網格:電量 / 信號 / 固件 / 心跳
+//   ④ 危險區:解綁(把 owner 置 null,素材保留)
 //
-// /devices/:did URL 仍可用 — 由 Dashboard 监听 useParams 自动打开 modal。
+// /devices/:did URL 仍可用 — 由 Dashboard 監聽 useParams 自動打開 modal。
 
 import { useCallback } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -53,7 +53,7 @@ export function DeviceModal({ open, onOpenChange, device }: DeviceModalProps) {
       await patch.mutateAsync({ name });
       toast.success('已改名');
     } catch (err) {
-      toast.error('改名失败', getApiErrorMessage(err));
+      toast.error('改名失敗', getApiErrorMessage(err));
       throw err;
     }
   });
@@ -68,8 +68,8 @@ export function DeviceModal({ open, onOpenChange, device }: DeviceModalProps) {
     patch.mutate(
       { selected_group_id: next },
       {
-        onSuccess: () => toast.success(next ? '已切换在播' : '已清空在播'),
-        onError: (err) => toast.error('切换失败', getApiErrorMessage(err)),
+        onSuccess: () => toast.success(next ? '已切換在播' : '已清空在播'),
+        onError: (err) => toast.error('切換失敗', getApiErrorMessage(err)),
       }
     );
   }

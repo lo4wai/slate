@@ -1,5 +1,5 @@
-// JWT 登录态管理。App 启动时如果 localStorage 有 token，自动 GET /users/current 回填 user
-// （否则 Layout 等组件读 ctx.user 永远是 null，刷新后看不到登出菜单）。
+// JWT 登錄態管理。App 啓動時如果 localStorage 有 token，自動 GET /users/current 回填 user
+// （否則 Layout 等組件讀 ctx.user 永遠是 null，刷新後看不到登出菜單）。
 
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -81,8 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(() => {
-    // 先把本地态清掉并跳登录页，再后台 best-effort 撤销 session：
-    // 服务端 logout 现在还是占位 no-op，等失败也不影响用户体验。
+    // 先把本地態清掉並跳登錄頁，再後台 best-effort 撤銷 session：
+    // 服務端 logout 現在還是佔位 no-op，等失敗也不影響用户體驗。
     const existingToken = tokenStorage.get();
     resetUnauthorizedState();
     tokenStorage.clear();

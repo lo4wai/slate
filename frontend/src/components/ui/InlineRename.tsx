@@ -38,7 +38,7 @@ export function InlineRename({
   saveIconSize?: number;
   renderTitle?: (value: string, className: string) => ReactNode;
 }) {
-  const label = editing ? '保存名称' : '改名';
+  const label = editing ? '保存名稱' : '改名';
   return (
     <div className="flex items-center gap-2 min-w-0">
       {editing ? (

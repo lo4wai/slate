@@ -1,10 +1,10 @@
 #pragma once
 
-// 后台同步：POST /api/v1/devices/current/poll 后按 manifest 增量拉 frame image / audio。
-// 状态/进度通过 EventBus 反馈：
-//   - SyncStarted       每轮开始
-//   - SyncFinished{ok}  每轮结束(含 304 noop)
-//   - kSyncedGroupReady{gid,content_count}  当 selected_group 内容就绪
+// 後台同步：POST /api/v1/devices/current/poll 後按 manifest 增量拉 frame image / audio。
+// 狀態/進度通過 EventBus 反饋：
+//   - SyncStarted       每輪開始
+//   - SyncFinished{ok}  每輪結束(含 304 noop)
+//   - kSyncedGroupReady{gid,content_count}  當 selected_group 內容就緒
 
 #include <atomic>
 #include <mutex>
@@ -32,20 +32,20 @@ class SyncService {
     void Start(std::string wake_reason, InitialSync initial_sync = InitialSync::kNone);
     void Stop();
 
-    // 主动触发一次前台 poll。用于后台刷新被充电/解绑宽限打断后转入 active 模式。
+    // 主動觸發一次前台 poll。用於後台刷新被充電/解綁寬限打斷後轉入 active 模式。
     void RequestUserActiveSync();
 
-    // 设备主动 cycle 切组(scene 按键 callback 调)。
-    // 内部置 BIT_CYCLE_NEXT/PREV,Loop 在唤醒时调 api::CycleGroup 然后立即 SyncOnce。
+    // 設備主動 cycle 切組(scene 按鍵 callback 調)。
+    // 內部置 BIT_CYCLE_NEXT/PREV,Loop 在喚醒時調 api::CycleGroup 然後立即 SyncOnce。
     void CycleNext();
     void CyclePrev();
 
-    // 当前已就绪的 group_id(Scene::OnEnter 时读)
+    // 當前已就緒的 group_id(Scene::OnEnter 時讀)
     std::string CurrentGroupId() const;
 
-    // 是否正在执行一次 sync 突发(poll/cycle → manifest → 拉帧)。SleepManager 用它阻止
-    // idle deep sleep 在大文件下载中途打断同步。只在单轮 SyncOnce/DoCycle 期间为真,
-    // 突发之间(轮询间隔)为假,因此不会让设备永不睡(卡死由看门狗兜底)。
+    // 是否正在執行一次 sync 突發(poll/cycle → manifest → 拉幀)。SleepManager 用它阻止
+    // idle deep sleep 在大文件下載中途打斷同步。只在單輪 SyncOnce/DoCycle 期間為真,
+    // 突發之間(輪詢間隔)為假,因此不會讓設備永不睡(卡死由看門狗兜底)。
     bool IsBusy() const {
         return in_flight_.load(std::memory_order_acquire);
     }
@@ -97,8 +97,8 @@ class SyncService {
     std::string          wake_reason_;
     std::vector<uint8_t> download_buf_;
     enum class BoundState : uint8_t { kUnknown, kBound, kUnbound };
-    // 跟踪 bound 翻转。Unknown 初始态保证首轮 unbound 也会 emit kUnbound。
+    // 跟蹤 bound 翻轉。Unknown 初始態保證首輪 unbound 也會 emit kUnbound。
     std::atomic<BoundState> was_bound_{BoundState::kUnknown};
-    // 进入 unbound 状态的时刻,用于阶梯退避轮询间隔。
+    // 進入 unbound 狀態的時刻,用於階梯退避輪詢間隔。
     std::atomic<int64_t> unbound_since_ms_{0};
 };

@@ -1,17 +1,17 @@
-// 统一的 Select 组件 — Radix Select 包一层，trigger / content / item
-// 与 Input 使用同款 affordance。
+// 統一的 Select 組件 — Radix Select 包一層，trigger / content / item
+// 與 Input 使用同款 affordance。
 //
-// 单值受控用法:
-//   <Select value={v} onValueChange={setV} placeholder="未选">
+// 單值受控用法:
+//   <Select value={v} onValueChange={setV} placeholder="未選">
 //     <SelectItem value="a">A</SelectItem>
-//     <SelectItem value="b" hint="2 项">B</SelectItem>
+//     <SelectItem value="b" hint="2 項">B</SelectItem>
 //   </Select>
 //
-// 需要分隔条:<SelectSeparator />
+// 需要分隔條:<SelectSeparator />
 //
-// 这个组件刻意不做「options[]」那种 declarative 数据驱动 — 因为 GroupSelector
-// 的「未选组」item 与正常 group items 之间需要一根分隔线，而 DitherControls
-// 不需要。children 形式让两者复用 trigger 但保留各自结构自由度。
+// 這個組件刻意不做「options[]」那種 declarative 數據驅動 — 因為 GroupSelector
+// 的「未選組」item 與正常 group items 之間需要一根分隔線，而 DitherControls
+// 不需要。children 形式讓兩者複用 trigger 但保留各自結構自由度。
 
 import { type ReactNode } from 'react';
 import * as RS from '@radix-ui/react-select';
@@ -42,8 +42,8 @@ export function Select({
       <RS.Trigger aria-label={ariaLabel} className={cn(selectTriggerCls, className)}>
         <RS.Value placeholder={placeholder} />
         <RS.Icon>
-          {/* chevron 用 stone(暖棕)而非 stone-light:在 cream-deep 底上后者
-              几乎被吃掉,失去"这是下拉框"的视觉暗示 */}
+          {/* chevron 用 stone(暖棕)而非 stone-light:在 cream-deep 底上後者
+              幾乎被吃掉,失去"這是下拉框"的視覺暗示 */}
           <ChevronDown size={14} className="text-ink" />
         </RS.Icon>
       </RS.Trigger>
@@ -65,7 +65,7 @@ export function Select({
 interface SelectItemProps {
   value: string;
   children: ReactNode;
-  /** 右侧灰字小注(如 "12 帧") */
+  /** 右側灰字小注(如 "12 幀") */
   hint?: ReactNode;
   className?: string;
 }
@@ -79,7 +79,7 @@ export function SelectItem({ value, children, hint, className }: SelectItemProps
       {hint != null && (
         <span className="ml-auto shrink-0 font-mono text-[11px] text-stone-light">{hint}</span>
       )}
-      {/* 选中标记:右侧 check,与 hint 共存时排在 hint 之后 */}
+      {/* 選中標記:右側 check,與 hint 共存時排在 hint 之後 */}
       <RS.ItemIndicator className="ml-1 shrink-0 text-ink">
         <Check size={13} strokeWidth={2.5} />
       </RS.ItemIndicator>

@@ -9,8 +9,8 @@ class ChargeStatus;
 class Button;
 class EpdSsd1683;
 
-// 板级单例:i2c bus / 电源 / 充电状态 / 按键 / EPD+LVGL / 电池 ADC。
-// 按 Init() 内的顺序构建依赖,顺序要求详见 Init() 里的注释。
+// 板級單例:i2c bus / 電源 / 充電狀態 / 按鍵 / EPD+LVGL / 電池 ADC。
+// 按 Init() 內的順序構建依賴,順序要求詳見 Init() 裏的註釋。
 class Board {
    public:
     static Board& Get();
@@ -39,7 +39,7 @@ class Board {
         return i2c_bus_;
     }
 
-    // 单节锂电池电压 + 百分比。失败原因:ADC 未 ready / 没装电池(charge 状态机说)。
+    // 單節鋰電池電壓 + 百分比。失敗原因:ADC 未 ready / 沒裝電池(charge 狀態機説)。
     bool ReadBattery(uint16_t* voltage_mv, uint8_t* percent);
 
    private:

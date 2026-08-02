@@ -1,4 +1,4 @@
-// 设备卡片：可拖拽排序 + 在线状态点 + 电量/信号 + 底部操作行。
+// 設備卡片：可拖拽排序 + 在線狀態點 + 電量/信號 + 底部操作行。
 
 import { memo, useCallback } from 'react';
 import { Wifi, Frame, Trash2 } from 'lucide-react';
@@ -68,7 +68,7 @@ export const DeviceCard = memo(function DeviceCard({
               </h3>
               <span className="inline-flex items-center gap-1.5 text-[11px] text-stone flex-shrink-0">
                 <span className={cn('dot', online ? 'dot-online' : 'dot-offline')} />
-                {online ? '在线' : '离线'}
+                {online ? '在線' : '離線'}
               </span>
             </div>
 
@@ -86,8 +86,8 @@ export const DeviceCard = memo(function DeviceCard({
                   groupName ? 'text-stone' : 'text-stone-light italic'
                 )}
               >
-                {groupName ?? '未选组'}
-                {groupName && playingContents != null && ` · ${playingContents} 项`}
+                {groupName ?? '未選組'}
+                {groupName && playingContents != null && ` · ${playingContents} 項`}
               </span>
             </p>
 
@@ -104,7 +104,7 @@ export const DeviceCard = memo(function DeviceCard({
                     <Wifi size={14} />
                     <span>{rssiLabel(device.rssi_dbm)}</span>
                   </span>
-                  <span className="text-stone-light text-[11px] ml-auto">刚刚</span>
+                  <span className="text-stone-light text-[11px] ml-auto">剛剛</span>
                 </>
               ) : (
                 <LastSeenLabel lastSeenAt={device.last_seen_at} />
@@ -123,8 +123,8 @@ export const DeviceCard = memo(function DeviceCard({
           type="button"
           onClick={onUnbind}
           disabled={unbindPending}
-          aria-label="解绑"
-          title="从账号解绑"
+          aria-label="解綁"
+          title="從賬號解綁"
           className="p-1.5 text-stone hover:text-clay hover:bg-cream transition-colors disabled:opacity-50"
         >
           <Trash2 size={14} />

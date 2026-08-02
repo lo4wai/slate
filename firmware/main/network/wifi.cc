@@ -34,22 +34,22 @@ bool FillStaConfig(wifi_config_t& wc, const std::string& ssid, const std::string
     wc = {};
     if (ssid.empty()) {
         if (reason)
-            *reason = "SSID 不能为空";
+            *reason = "SSID 不能為空";
         return false;
     }
     if (ssid.size() > sizeof(wc.sta.ssid)) {
         if (reason)
-            *reason = "SSID 过长";
+            *reason = "SSID 過長";
         return false;
     }
     if (password.size() >= sizeof(wc.sta.password)) {
         if (reason)
-            *reason = "Wi-Fi 密码过长";
+            *reason = "Wi-Fi 密碼過長";
         return false;
     }
     if (!password.empty() && password.size() < 8) {
         if (reason)
-            *reason = "Wi-Fi 密码至少 8 位；开放网络请留空";
+            *reason = "Wi-Fi 密碼至少 8 位；開放網絡請留空";
         return false;
     }
     std::memcpy(wc.sta.ssid, ssid.data(), ssid.size());
@@ -65,38 +65,38 @@ std::string DisconnectReasonZh(int reason) {
         case 1:
             return "未指定原因";
         case 2:
-            return "auth 失败";
+            return "auth 失敗";
         case 3:
-            return "路由器主动断开(auth)";
+            return "路由器主動斷開(auth)";
         case 4:
-            return "associate 超时";
+            return "associate 超時";
         case 5:
-            return "AP 客户端过多";
+            return "AP 客户端過多";
         case 6:
-            return "未认证";
+            return "未認證";
         case 7:
-            return "未关联";
+            return "未關聯";
         case 8:
-            return "本机断开(assoc-leave,常见于配置切换)";
+            return "本機斷開(assoc-leave,常見於配置切換)";
         case 14:
-            return "MIC 失败,密码错";
+            return "MIC 失敗,密碼錯";
         case 15:
-            return "4-way handshake 超时(密码错)";
+            return "4-way handshake 超時(密碼錯)";
         case 200:
-            return "信号弱或路由器无 beacon";
+            return "信號弱或路由器無 beacon";
         case 201:
-            return "未找到该 SSID";
+            return "未找到該 SSID";
         case 202:
-            return "认证失败,密码错";
+            return "認證失敗,密碼錯";
         case 203:
-            return "associate 失败";
+            return "associate 失敗";
         case 204:
-            return "握手超时";
+            return "握手超時";
         case 205:
-            return "连接失败";
+            return "連接失敗";
         default: {
             char buf[48];
-            std::snprintf(buf, sizeof(buf), "连接失败 (reason=%d)", reason);
+            std::snprintf(buf, sizeof(buf), "連接失敗 (reason=%d)", reason);
             return buf;
         }
     }
@@ -255,11 +255,11 @@ bool Wifi::Connect(const std::string& ssid, const std::string& password, int tim
 bool Wifi::TryConnect(const std::string& ssid, const std::string& password, int timeout_ms, std::string& out_reason) {
     Init();
     if (ssid.empty()) {
-        out_reason = "SSID 不能为空";
+        out_reason = "SSID 不能為空";
         return false;
     }
     if (mode_.load(std::memory_order_acquire) != Mode::AccessPoint) {
-        out_reason = "TryConnect 必须在配网模式下调用";
+        out_reason = "TryConnect 必須在配網模式下調用";
         ESP_LOGE(kTag, "try connect failed reason=not_ap_mode");
         return false;
     }
@@ -317,7 +317,7 @@ bool Wifi::TryConnect(const std::string& ssid, const std::string& password, int 
     if (last_reason != 0) {
         out_reason = DisconnectReasonZh(last_reason);
     } else {
-        out_reason = "连接超时,可能信号弱或路由器无响应";
+        out_reason = "連接超時,可能信號弱或路由器無響應";
     }
     esp_wifi_disconnect();
     ESP_LOGW(kTag, "try connect failed reason=%s", out_reason.c_str());

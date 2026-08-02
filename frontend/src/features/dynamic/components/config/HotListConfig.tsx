@@ -23,7 +23,7 @@ export function HotListConfigPanel({
   return (
     <div className="space-y-4">
       <div>
-        <p className="font-mono text-[10px] text-stone uppercase tracking-[0.18em] mb-1.5">频道</p>
+        <p className="font-mono text-[10px] text-stone uppercase tracking-[0.18em] mb-1.5">頻道</p>
         <Select
           value={config.source}
           onValueChange={(value) => {
@@ -46,14 +46,14 @@ export function HotListConfigPanel({
 function hotListKindLabel(kind: (typeof HOT_LIST_SOURCES_BY_NAME)[number]['kind']): string {
   switch (kind) {
     case 'general':
-      return '综合';
+      return '綜合';
     case 'news':
-      return '新闻';
+      return '新聞';
     case 'tech':
       return '科技';
     case 'community':
-      return '社区';
+      return '社區';
     case 'commerce':
-      return '消费';
+      return '消費';
   }
 }

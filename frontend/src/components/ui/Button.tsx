@@ -1,4 +1,4 @@
-// Mono Press 按钮：0px 圆角、uppercase 字母间距、实心墨 / 描边 / 危险三变体。
+// Mono Press 按鈕：0px 圓角、uppercase 字母間距、實心墨 / 描邊 / 危險三變體。
 
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';

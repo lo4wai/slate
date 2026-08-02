@@ -15,20 +15,20 @@ namespace {
 
 constexpr char kTag[] = "power_state";
 
-// 最小 wake 间隔：太短会把 deep sleep 的省电优势磨没。
+// 最小 wake 間隔：太短會把 deep sleep 的省電優勢磨沒。
 constexpr uint32_t kMinWakeIntervalSec = 60u;
 
-// RTC slow memory 持久化变量。深睡跨越保留；cold boot 由 Init(true) 显式清零。
+// RTC slow memory 持久化變量。深睡跨越保留；cold boot 由 Init(true) 顯式清零。
 RTC_DATA_ATTR bool     s_frame_dynamic         = false;
 RTC_DATA_ATTR uint32_t s_frame_server_sync_sec = 0;
 RTC_DATA_ATTR int      s_current_frame_seq     = 0;
 
-// 连续 timer wake 未能联系上服务器(WiFi/后端不可达,或 sync 失败)的次数。
-// 用于指数退避下次 RTC timer 间隔,避免网络长期不可用时每 60s 空醒耗电。
-// 成功同步清零;cold boot 清零;深睡跨越保留(退避需跨唤醒累计)。
+// 連續 timer wake 未能聯繫上服務器(WiFi/後端不可達,或 sync 失敗)的次數。
+// 用於指數退避下次 RTC timer 間隔,避免網絡長期不可用時每 60s 空醒耗電。
+// 成功同步清零;cold boot 清零;深睡跨越保留(退避需跨喚醒累計)。
 RTC_DATA_ATTR uint32_t s_timer_wake_fail_count = 0;
 
-// 退避位移上限:60s << 6 ≈ 64min,与下方 kMaxBackoffWakeSec 共同封顶。
+// 退避位移上限:60s << 6 ≈ 64min,與下方 kMaxBackoffWakeSec 共同封頂。
 constexpr uint32_t kMaxBackoffShift   = 6;
 constexpr uint64_t kMaxBackoffWakeSec = 3600;
 
@@ -102,8 +102,8 @@ void SetCurrentFrameFromMeta(int seq, const cache::FrameMeta& meta) {
     schedule.server_sync_sec = meta.ttl_sec;
     SetCurrentFrameSchedule(schedule);
     SetCurrentFrameSeq(seq);
-    // flash 去重：current_frame_seq 仅在与已持久化值不同时才写。后台定时刷新每次唤醒
-    // 都展示同一帧，旧实现每次都写 LittleFS，长期磨损 flash；读取不伤寿命，先读再判。
+    // flash 去重：current_frame_seq 僅在與已持久化值不同時才寫。後台定時刷新每次喚醒
+    // 都展示同一幀，舊實現每次都寫 LittleFS，長期磨損 flash；讀取不傷壽命，先讀再判。
     int persisted = 0;
     if (cache::ReadCurrentFrameSeq(persisted) && persisted == seq)
         return;
@@ -162,7 +162,7 @@ uint32_t ComputeNextWakeSec() {
     }
     const uint32_t next  = NormalizeDynamicWakeSec(server_sync_sec);
     const uint32_t shift = s_timer_wake_fail_count > kMaxBackoffShift ? kMaxBackoffShift : s_timer_wake_fail_count;
-    // 不可达退避:连续 timer wake 失败时指数拉长下次唤醒,封顶 kMaxBackoffWakeSec。
+    // 不可達退避:連續 timer wake 失敗時指數拉長下次喚醒,封頂 kMaxBackoffWakeSec。
     const uint64_t backed = static_cast<uint64_t>(next) << shift;
     return static_cast<uint32_t>(backed > kMaxBackoffWakeSec ? kMaxBackoffWakeSec : backed);
 }
@@ -181,7 +181,7 @@ bool SaveStatusBarSnapshot(const uint8_t* data, size_t len) {
         return false;
     const uint32_t  hash = HashBytes(data, len);
     ScopedMutexLock lock(StateMutex());
-    // magic 是提交标记:先清无效,写完 snapshot/hash 后再恢复,Load 只接受完整快照。
+    // magic 是提交標記:先清無效,寫完 snapshot/hash 後再恢復,Load 只接受完整快照。
     s_status_bar_magic = 0;
     std::memcpy(s_status_bar_snapshot, data, epd::kStatusBarSnapshotBytes);
     s_status_bar_hash  = hash;

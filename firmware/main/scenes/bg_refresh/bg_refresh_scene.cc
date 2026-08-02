@@ -24,9 +24,9 @@ namespace {
 constexpr char kTag[] = "bg_refresh";
 constexpr int  kBpr   = FrameView::kWidth / 8;
 
-// 后台刷新整体硬截止：从进场到完成的总时长上限。WiFi 连接 + poll + 拉帧 + EPD 刷新
-// 都算在内。超时直接投 kBgRefreshDone 回睡，不再依赖 10min idle Tick 兜底，封住
-// 「sync 卡住 → 持续亮屏连网耗电」的窗口。
+// 後台刷新整體硬截止：從進場到完成的總時長上限。WiFi 連接 + poll + 拉幀 + EPD 刷新
+// 都算在內。超時直接投 kBgRefreshDone 回睡，不再依賴 10min idle Tick 兜底，封住
+// 「sync 卡住 → 持續亮屏連網耗電」的窗口。
 constexpr int kBgRefreshDeadlineMs = 40000;
 
 void PostBgRefreshDone() {
@@ -59,9 +59,9 @@ void UpdateFrameSchedule(int seq, const cache::FrameMeta& meta) {
     power_state::SetCurrentFrameFromMeta(seq, meta);
 }
 
-// 截止看护任务：等到 kBgRefreshDeadlineMs；其间一旦 done_posted 置位(正常 finish)就提前退出，
-// 否则到点强制 PostBgRefreshDoneOnce。复用 WatcherContext(epd 置空,只用 done_posted)。
-// 自删除 + unique_ptr 释放 ctx,与 WatcherEntry 同模式,无泄漏。
+// 截止看護任務：等到 kBgRefreshDeadlineMs；其間一旦 done_posted 置位(正常 finish)就提前退出，
+// 否則到點強制 PostBgRefreshDoneOnce。複用 WatcherContext(epd 置空,只用 done_posted)。
+// 自刪除 + unique_ptr 釋放 ctx,與 WatcherEntry 同模式,無泄漏。
 void DeadlineEntry(void* arg) {
     std::unique_ptr<WatcherContext> ctx(static_cast<WatcherContext*>(arg));
     auto                            done_posted = ctx ? ctx->done_posted : std::shared_ptr<std::atomic<bool>>();
@@ -73,10 +73,10 @@ void DeadlineEntry(void* arg) {
     }
     if (!finished()) {
         ESP_LOGW(kTag, "deadline reached elapsed_ms=%d action=force_done", kBgRefreshDeadlineMs);
-        // 不在此处 RecordTimerWakeResult：与 OnEvent 的上报存在时序竞态(渲染跨过截止时
-        // 会先 true 再 false 重复计数)。失败退避由「连不上服务器」(app.cc net_ok=false)与
-        // OnEvent 的 kSyncFinished(ok) 覆盖；「连上但每次卡满截止」是罕见失败模式，
-        // 仅靠 40s 截止回睡兜底、不计入退避（已知次要限制）。
+        // 不在此處 RecordTimerWakeResult：與 OnEvent 的上報存在時序競態(渲染跨過截止時
+        // 會先 true 再 false 重複計數)。失敗退避由「連不上服務器」(app.cc net_ok=false)與
+        // OnEvent 的 kSyncFinished(ok) 覆蓋；「連上但每次卡滿截止」是罕見失敗模式，
+        // 僅靠 40s 截止回睡兜底、不計入退避（已知次要限制）。
         PostBgRefreshDoneOnce(done_posted);
     }
     vTaskDelete(nullptr);
@@ -97,7 +97,7 @@ void BgRefreshScene::StartDeadlineWatchdog() {
     auto* ctx = new (std::nothrow) WatcherContext{nullptr, done_posted_};
     if (!ctx) {
         ESP_LOGW(kTag, "deadline watchdog alloc failed");
-        return;  // 退化到 SleepManager 的 idle/看门狗兜底
+        return;  // 退化到 SleepManager 的 idle/看門狗兜底
     }
     BaseType_t ok = xTaskCreatePinnedToCore(&DeadlineEntry, "bg_refresh_deadline", 2048, ctx, 2, nullptr, 0);
     if (ok != pdPASS) {
@@ -114,8 +114,8 @@ void BgRefreshScene::OnEvent(SceneContext& ctx, const UiEvent& e) {
     if (e.kind != UiEventKind::kSyncFinished || state_ != State::kWaiting)
         return;
 
-    // 上报本次 timer wake 的联网结果：ok 清零退避计数，失败递增。配合 app.cc 网络
-    // 建立失败分支，让持续不可达的设备指数拉长唤醒间隔，而非每 ttl 空醒。
+    // 上報本次 timer wake 的聯網結果：ok 清零退避計數，失敗遞增。配合 app.cc 網絡
+    // 建立失敗分支，讓持續不可達的設備指數拉長喚醒間隔，而非每 ttl 空醒。
     power_state::RecordTimerWakeResult(e.u.sync.ok);
 
     if (!e.u.sync.ok || !e.u.sync.group_changed) {

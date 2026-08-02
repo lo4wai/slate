@@ -83,7 +83,7 @@ export function useReorderContents(gid: string) {
     mutationFn: async (body: ReorderContentsRequestT) => {
       await api.put(`${API_PREFIX}/groups/${gid}/contents/order`, body);
     },
-    // 乐观更新 seq：避免拖拽落点到 refetch 完成之间 ContentCard 显示旧序号。
+    // 樂觀更新 seq：避免拖拽落點到 refetch 完成之間 ContentCard 顯示舊序號。
     onMutate: async ({ order }) => {
       await qc.cancelQueries({ queryKey: groupKey });
       const previous = qc.getQueryData<ContentDetailT[]>(groupKey);
@@ -102,7 +102,7 @@ export function useReorderContents(gid: string) {
     onError: (_err, _vars, ctx) => {
       if (ctx?.previous) qc.setQueryData(groupKey, ctx.previous);
     },
-    // 后端 reorder 会重算 manifest_etag，所以 groups 缓存也要 invalidate。
+    // 後端 reorder 會重算 manifest_etag，所以 groups 緩存也要 invalidate。
     onSettled: () => {
       invalidate();
     },

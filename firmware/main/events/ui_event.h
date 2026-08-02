@@ -6,29 +6,29 @@
 
 enum class ButtonId : uint8_t { kEnter = 0, kUp, kDown };
 
-// boot 阶段枚举;splash 用此切文案。顺序对应 splash 状态机典型路径。
+// boot 階段枚舉;splash 用此切文案。順序對應 splash 狀態機典型路徑。
 enum class BootStage : uint8_t {
     kInitializing = 0,
-    kProvisioning,       // 无 cred,captive portal 模式
-    kWifiConnecting,     // 试连 STA(载荷带 ssid)
-    kWifiFailed,         // 试连超时/认证失败
-    kSntp,               // 等系统时间对齐
-    kRegistering,        // 调 /devices
-    kServerUnreachable,  // 服务器 30s 无响应
-    kAwaitingPair,       // 注册完毕,等待 Web 端 claim(载荷带 pair_code)
-    kAwaitingGroup,      // 已 bound,等待管理端分配内容组
-    kNetError,           // 其它网络异常
+    kProvisioning,       // 無 cred,captive portal 模式
+    kWifiConnecting,     // 試連 STA(載荷帶 ssid)
+    kWifiFailed,         // 試連超時/認證失敗
+    kSntp,               // 等系統時間對齊
+    kRegistering,        // 調 /devices
+    kServerUnreachable,  // 服務器 30s 無響應
+    kAwaitingPair,       // 註冊完畢,等待 Web 端 claim(載荷帶 pair_code)
+    kAwaitingGroup,      // 已 bound,等待管理端分配內容組
+    kNetError,           // 其它網絡異常
 };
 
 enum class GroupSyncStatusMode : uint8_t {
-    kCycleTarget = 0,          // 已拿到主动切换目标
-    kCycleCacheHit,            // 主动切换目标命中本地缓存
-    kCycleDownloading,         // 正在下载主动切换目标
-    kCurrentGroupUpdating,     // 后台刷新正在更新当前内容组
-    kInitialGroupDownloading,  // 启动/普通同步正在下载目标内容组
-    kTargetGroupSaving,        // 下载后正在保存目标内容组缓存
-    kCurrentGroupSaving,       // 下载后正在保存当前内容组缓存
-    kCycleFailed,              // 主动切换失败，保留当前内容组
+    kCycleTarget = 0,          // 已拿到主動切換目標
+    kCycleCacheHit,            // 主動切換目標命中本地緩存
+    kCycleDownloading,         // 正在下載主動切換目標
+    kCurrentGroupUpdating,     // 後台刷新正在更新當前內容組
+    kInitialGroupDownloading,  // 啓動/普通同步正在下載目標內容組
+    kTargetGroupSaving,        // 下載後正在保存目標內容組緩存
+    kCurrentGroupSaving,       // 下載後正在保存當前內容組緩存
+    kCycleFailed,              // 主動切換失敗，保留當前內容組
 };
 
 namespace evt {
@@ -50,26 +50,26 @@ enum class UiEventKind : uint8_t {
     kBatteryUpdated,    // u.battery
     kWifiStateChanged,  // u.wifi
     kSyncStarted,
-    kSyncProgress,      // u.progress { current, total }  帧级下载进度
-    kGroupSyncStatus,   // u.group_sync  内容组切换/下载/更新状态
+    kSyncProgress,      // u.progress { current, total }  幀級下載進度
+    kGroupSyncStatus,   // u.group_sync  內容組切換/下載/更新狀態
     kSyncFinished,      // u.sync
     kCachedGroupReady,  // u.group
     kSyncedGroupReady,  // u.group
     kMinuteTick,
     kIdleTimeout,
-    // 启动阶段进度,由 app.cc TryConnectAndSetup 各步 emit;splash 用 stage 切文案。
+    // 啓動階段進度,由 app.cc TryConnectAndSetup 各步 emit;splash 用 stage 切文案。
     kBootStage,  // u.boot_stage
-    // 设备从 unbound 翻 bound:Web 端用户输入了配对码。splash 切「等待内容组」。
+    // 設備從 unbound 翻 bound:Web 端用户輸入了配對碼。splash 切「等待內容組」。
     kBound,
-    // 设备从 bound 翻 unbound:Web 端主动解绑。任何场景需 RequestReplace 回 splash。
+    // 設備從 bound 翻 unbound:Web 端主動解綁。任何場景需 RequestReplace 回 splash。
     kUnbound,  // u.unbound { pair_code[8] }
-    // poll 收到 401:secret 失效,固件 self-reset 流(清 NVS secret + 重启)。
+    // poll 收到 401:secret 失效,固件 self-reset 流(清 NVS secret + 重啓)。
     kSecretInvalid,
-    // RTC timer 唤醒后台刷新场景完成/放弃，App 可立即进入下一轮 deep sleep。
+    // RTC timer 喚醒後台刷新場景完成/放棄，App 可立即進入下一輪 deep sleep。
     kBgRefreshDone,
-    // Xiaozhi 子系统状态变化。Scene 收到后从 XiaozhiService 读取最新快照。
+    // Xiaozhi 子系統狀態變化。Scene 收到後從 XiaozhiService 讀取最新快照。
     kXiaozhiChanged,
-    // Xiaozhi 网络/服务端主动关闭。App 收到后转交 XiaozhiService 收束对应会话。
+    // Xiaozhi 網絡/服務端主動關閉。App 收到後轉交 XiaozhiService 收束對應會話。
     kXiaozhiChannelClosed,  // u.xiaozhi_channel.token
 };
 
@@ -111,16 +111,16 @@ struct UiEvent {
         } group_sync;
         struct {
             char gid[evt::limits::kGroupIdBytes];
-            char name[evt::limits::kGroupNameBytes];  // 当前组名（UTF-8），用于状态栏 / boot splash 文案
+            char name[evt::limits::kGroupNameBytes];  // 當前組名（UTF-8），用於狀態欄 / boot splash 文案
             int  content_count;
-            // true = 本轮 sync 真下载了新 frame(内容变化);false = fast-path/304,只是确认状态。
-            // FrameScene 用它决定是否触发 EPD full refresh,避免 30s 心跳每轮都闪屏。
+            // true = 本輪 sync 真下載了新 frame(內容變化);false = fast-path/304,只是確認狀態。
+            // FrameScene 用它決定是否觸發 EPD full refresh,避免 30s 心跳每輪都閃屏。
             bool content_changed;
         } group;
         struct {
             BootStage stage;
-            char      ssid[evt::limits::kWifiSsidBytes];       // kWifiConnecting 时设 STA SSID
-            char      pair_code[evt::limits::kPairCodeBytes];  // kAwaitingPair 时设 6 位 + nul
+            char      ssid[evt::limits::kWifiSsidBytes];       // kWifiConnecting 時設 STA SSID
+            char      pair_code[evt::limits::kPairCodeBytes];  // kAwaitingPair 時設 6 位 + nul
         } boot_stage;
         struct {
             char pair_code[evt::limits::kPairCodeBytes];

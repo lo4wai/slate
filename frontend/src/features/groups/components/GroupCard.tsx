@@ -1,4 +1,4 @@
-// 内容组卡片：可拖拽排序 + 内容数展示 + 底部操作行。
+// 內容組卡片：可拖拽排序 + 內容數展示 + 底部操作行。
 
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
@@ -36,7 +36,7 @@ export const GroupCardSortable = memo(function GroupCardSortable({
         className="block flex-1 min-w-0 px-5 py-5 sm:px-6 sm:py-6 hover:bg-cream transition-colors"
       >
         <div className="flex items-start gap-3.5">
-          <IconBlock size="lg" tone="soft" title="内容" aria-label="内容">
+          <IconBlock size="lg" tone="soft" title="內容" aria-label="內容">
             <Layers size={24} />
           </IconBlock>
           <div className="min-w-0 flex-1 flex items-center justify-between gap-2">
@@ -55,7 +55,7 @@ export const GroupCardSortable = memo(function GroupCardSortable({
               <span className="font-serif text-[28px] font-bold leading-none tabular-nums text-ink">
                 {group.content_count}
               </span>
-              <span className="font-sans text-[11px] text-stone">项</span>
+              <span className="font-sans text-[11px] text-stone">項</span>
             </div>
           </div>
         </div>
@@ -74,8 +74,8 @@ export const GroupCardSortable = memo(function GroupCardSortable({
             e.stopPropagation();
             onDelete(group);
           }}
-          aria-label="删除"
-          title="删除整组"
+          aria-label="刪除"
+          title="刪除整組"
           className="p-1.5 text-stone hover:text-clay hover:bg-cream transition-colors disabled:opacity-50"
         >
           <Trash2 size={14} />

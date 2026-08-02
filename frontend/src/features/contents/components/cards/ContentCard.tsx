@@ -32,7 +32,7 @@ export const ContentCard = memo(function ContentCard({ gid, content, onEdit }: C
     isPending: refresh.isPending,
     run: (contentId, callbacks) => refresh.mutate(contentId, callbacks),
     successToast: '已刷新',
-    errorToast: '刷新失败',
+    errorToast: '刷新失敗',
   });
 
   return (

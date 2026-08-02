@@ -1,4 +1,4 @@
-// Mono Press section 标题：衬线大字 + 双线分隔（替代波浪）。
+// Mono Press section 標題：襯線大字 + 雙線分隔（替代波浪）。
 
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';

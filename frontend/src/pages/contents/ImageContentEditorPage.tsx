@@ -1,4 +1,4 @@
-// 图片内容编辑页面 — 将路由参数解析后传入编辑器。
+// 圖片內容編輯頁面 — 將路由參數解析後傳入編輯器。
 
 import { ImageContentEditor } from '@/features/contents/components/image-form/ImageContentEditor';
 import { ContentEditorPageLayout } from '@/features/contents/components/ContentEditorPageLayout';
@@ -6,8 +6,8 @@ import { ContentEditorPageLayout } from '@/features/contents/components/ContentE
 export function ImageContentEditorPage() {
   return (
     <ContentEditorPageLayout
-      missingContentHint="请从内容列表进入图片内容编辑页。"
-      notFoundTitle="内容不存在或已删除"
+      missingContentHint="請從內容列表進入圖片內容編輯頁。"
+      notFoundTitle="內容不存在或已刪除"
       findContent={(content) => content.kind === 'image'}
       renderEditor={({ gid, content, onDone }) => (
         <ImageContentEditor gid={gid} content={content} onDone={onDone} />

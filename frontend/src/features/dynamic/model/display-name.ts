@@ -12,25 +12,25 @@ import { zonedDateParts } from '@/features/dynamic/lib/date';
 export function defaultDynamicFrameName(type: DynamicTypeT, config: DynamicConfigT): string {
   switch (type) {
     case 'daily_calendar':
-      return '日历';
+      return '日曆';
     case 'month_calendar':
-      return '月历';
+      return '月曆';
     case 'weather':
       return config.type === 'weather' && config.location_label
-        ? `${config.location_label}天气`
-        : '天气';
+        ? `${config.location_label}天氣`
+        : '天氣';
     case 'history_today':
-      return '历史上的今天';
+      return '歷史上的今天';
     case 'weather_alert':
-      return dynamicStatusTitle(config) ?? '气象预警';
+      return dynamicStatusTitle(config) ?? '氣象預警';
     case 'earthquake_report':
-      return '地震速报';
+      return '地震速報';
     case 'dashboard':
-      return config.type === 'dashboard' ? dashboardStatusTitle(config) : '外部数据';
+      return config.type === 'dashboard' ? dashboardStatusTitle(config) : '外部數據';
     case 'font_test':
-      return dynamicStatusTitle(config) ?? '字体测试';
+      return dynamicStatusTitle(config) ?? '字體測試';
     case 'hot_list':
-      return dynamicStatusTitle(config) ?? '热榜';
+      return dynamicStatusTitle(config) ?? '熱榜';
   }
 }
 
@@ -50,7 +50,7 @@ export function effectiveDynamicStatusBarText(
 ): string | null {
   if (type === 'dashboard') {
     return (
-      frameName.trim() || (config?.type === 'dashboard' ? dashboardStatusTitle(config) : '外部数据')
+      frameName.trim() || (config?.type === 'dashboard' ? dashboardStatusTitle(config) : '外部數據')
     );
   }
   return dynamicStatusTitle(config);
@@ -90,21 +90,21 @@ export function dynamicStatusTitle(config: DynamicConfigT | null | undefined): s
       return `${date.year}年${date.month}月`;
     }
     case 'weather':
-      return config.location_label ? `${config.location_label}天气` : '天气';
+      return config.location_label ? `${config.location_label}天氣` : '天氣';
     case 'history_today': {
       const date = zonedDateParts(new Date(), config.tz);
-      return `历史上的${date.month}月${date.day}日`;
+      return `歷史上的${date.month}月${date.day}日`;
     }
     case 'weather_alert':
-      return `${normalizeWeatherAlertProvince(config.province) || '全国'}气象预警`;
+      return `${normalizeWeatherAlertProvince(config.province) || '全國'}氣象預警`;
     case 'earthquake_report':
-      return '地震速报';
+      return '地震速報';
     case 'dashboard':
       return dashboardStatusTitle(config);
     case 'font_test':
-      return FONT_TEST_FONTS.find((font) => font.id === config.font_id)?.label ?? '字体测试';
+      return FONT_TEST_FONTS.find((font) => font.id === config.font_id)?.label ?? '字體測試';
     case 'hot_list':
-      return `${hotListSourceShortLabel(config.source)}热榜`;
+      return `${hotListSourceShortLabel(config.source)}熱榜`;
   }
 }
 
@@ -112,5 +112,5 @@ export function dashboardStatusTitle(config: DashboardConfigT): string {
   if (config.template.kind === 'system') {
     return DASHBOARD_SYSTEM_TEMPLATES[config.template.id].label;
   }
-  return config.template.template.name?.trim() || '自定义模板';
+  return config.template.template.name?.trim() || '自定義模板';
 }

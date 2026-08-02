@@ -14,8 +14,8 @@ namespace {
 constexpr char kTag[] = "epd";
 }
 
-// SPI 反复 free + reinit 是为了切换 DI 数据线方向(EPD 单数据线复用 MOSI/MISO):
-// 写命令/数据走 mosi_io_num=mosi_(发送),读温度时 miso_io_num=mosi_(同一物理引脚反向接收)。
+// SPI 反覆 free + reinit 是為了切換 DI 數據線方向(EPD 單數據線複用 MOSI/MISO):
+// 寫命令/數據走 mosi_io_num=mosi_(發送),讀温度時 miso_io_num=mosi_(同一物理引腳反向接收)。
 void EpdSsd1683::AssertRefreshTaskContext() const {
     configASSERT(refresh_task_ == nullptr || xTaskGetCurrentTaskHandle() == refresh_task_);
 }
@@ -64,7 +64,7 @@ void EpdSsd1683::SpiPortRxInit() {
         spi_inited_ = false;
     }
     spi_bus_config_t b              = {};
-    b.miso_io_num                   = mosi_;  // DI 反向当 MISO 收数据
+    b.miso_io_num                   = mosi_;  // DI 反向當 MISO 收數據
     b.mosi_io_num                   = -1;
     b.sclk_io_num                   = sclk_;
     b.quadwp_io_num                 = -1;
@@ -72,7 +72,7 @@ void EpdSsd1683::SpiPortRxInit() {
     b.max_transfer_sz               = kBufferLen * 2;
     spi_device_interface_config_t d = {};
     d.spics_io_num                  = -1;
-    d.clock_speed_hz                = 8 * 1000 * 1000;  // 读时降速到 8 MHz
+    d.clock_speed_hz                = 8 * 1000 * 1000;  // 讀時降速到 8 MHz
     d.mode                          = 0;
     d.queue_size                    = 7;
     ESP_ERROR_CHECK(spi_bus_initialize(spi_host_, &b, SPI_DMA_CH_AUTO));
@@ -81,8 +81,8 @@ void EpdSsd1683::SpiPortRxInit() {
 }
 
 uint8_t EpdSsd1683::EpdRecvData() {
-    // SPI RX/TX 模式切换会 remove/free/reinit bus。当前只允许 refresh_task
-    // 在刷新序列里调用,避免其它任务同时操作同一组 EPD 引脚。
+    // SPI RX/TX 模式切換會 remove/free/reinit bus。當前只允許 refresh_task
+    // 在刷新序列裏調用,避免其它任務同時操作同一組 EPD 引腳。
     AssertRefreshTaskContext();
     SpiPortRxInit();
     uint8_t           rx = 0;
@@ -98,7 +98,7 @@ uint8_t EpdSsd1683::EpdRecvData() {
 }
 
 void EpdSsd1683::SpiGpioInit() {
-    // EPD_PWR_PIN(GPIO6) 由本类自管(BoardPowerBsp 不再接管),先配成 OUTPUT。
+    // EPD_PWR_PIN(GPIO6) 由本類自管(BoardPowerBsp 不再接管),先配成 OUTPUT。
     gpio_config_t gpwr = {};
     gpwr.intr_type     = GPIO_INTR_DISABLE;
     gpwr.mode          = GPIO_MODE_OUTPUT;
@@ -118,13 +118,13 @@ void EpdSsd1683::SpiGpioInit() {
     g.pin_bit_mask = (1ULL << busy_);
     gpio_config(&g);
     gpio_set_level(rst_, 1);
-    gpio_set_level(cs_, 1);  // CS 默认拉高(SPI device 不被选中)
+    gpio_set_level(cs_, 1);  // CS 默認拉高(SPI device 不被選中)
 }
 
 void EpdSsd1683::ReadBusy() {
-    // 5s 超时兜底:屏挂死/带线松了不会让 refresh task 永久阻塞。
-    // 正常 full 刷 ~3s,partial ~1s,5s 留足余量。超时直接 panic 重启,
-    // 比挂死 + WDT 复位更可控,日志也更明确。
+    // 5s 超時兜底:屏掛死/帶線鬆了不會讓 refresh task 永久阻塞。
+    // 正常 full 刷 ~3s,partial ~1s,5s 留足餘量。超時直接 panic 重啓,
+    // 比掛死 + WDT 復位更可控,日誌也更明確。
     constexpr int64_t kBusyTimeoutMs = 5000;
     const int64_t     start_ms       = time_utils::NowMs();
     while (gpio_get_level(busy_) == 0) {

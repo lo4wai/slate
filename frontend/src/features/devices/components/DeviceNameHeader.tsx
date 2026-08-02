@@ -30,7 +30,7 @@ export function DeviceNameHeader({
       <div className="min-w-0">
         <p className="inline-flex items-center gap-2 text-[12px] text-stone">
           <span className={cn('dot', online ? 'dot-online' : 'dot-offline')} />
-          {online ? '在线' : '离线'}
+          {online ? '在線' : '離線'}
           <span className="font-mono text-[11px] text-stone-light">{device.mac}</span>
         </p>
         <div className="mt-1.5">
@@ -57,7 +57,7 @@ export function DeviceNameHeader({
       </div>
       <Dialog.Close asChild>
         <button
-          aria-label="关闭"
+          aria-label="關閉"
           className="p-2 -m-2 text-stone hover:text-ink hover:bg-cream flex-shrink-0 transition-colors"
         >
           <X size={20} />

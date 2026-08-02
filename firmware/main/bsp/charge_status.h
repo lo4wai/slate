@@ -29,7 +29,7 @@ class ChargeStatus {
     void     StartTick();
     void     StopTick();
     Snapshot Get() const;
-    // 回调在 Tick() 调用方上下文同步执行;只做 evt::Post 这类轻量转发。
+    // 回調在 Tick() 調用方上下文同步執行;只做 evt::Post 這類輕量轉發。
     void OnStateChanged(std::function<void(const Snapshot&)> cb);
 
    private:

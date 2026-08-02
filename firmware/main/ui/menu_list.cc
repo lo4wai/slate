@@ -6,10 +6,10 @@
 #include "ui/theme.h"
 
 namespace {
-// list root 高度 = 屏 300 - status bar 24 = 276。对称 pad 12 + 6 行 × 42 = 276。
-// 选 6 行 + 42 行高:行间不空,设置页 6 项可完整放进一屏。
-// thumb track 区 [pad_top, root_h - pad_bot] 自然对称,顶/底间距相等。
-// 右侧 thumb 几何定义在 theme.h,与 DeviceInfoPage 共用。
+// list root 高度 = 屏 300 - status bar 24 = 276。對稱 pad 12 + 6 行 × 42 = 276。
+// 選 6 行 + 42 行高:行間不空,設置頁 6 項可完整放進一屏。
+// thumb track 區 [pad_top, root_h - pad_bot] 自然對稱,頂/底間距相等。
+// 右側 thumb 幾何定義在 theme.h,與 DeviceInfoPage 共用。
 }  // namespace
 
 MenuList::MenuList(lv_obj_t* parent, std::vector<Item> items, int initial_cursor) : items_(std::move(items)) {
@@ -33,7 +33,7 @@ MenuList::MenuList(lv_obj_t* parent, std::vector<Item> items, int initial_cursor
     cursor_bars_.reserve(items_.size());
 
     for (size_t i = 0; i < items_.size(); ++i) {
-        // 行容器:透明背景,只是为了对齐子元素的逻辑组。y 由 Redraw 按 viewport 设置。
+        // 行容器:透明背景,只是為了對齊子元素的邏輯組。y 由 Redraw 按 viewport 設置。
         auto* row = lv_obj_create(root_);
         lv_obj_set_size(row, LV_HOR_RES, theme::kMenuRowHeight);
         lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
@@ -42,8 +42,8 @@ MenuList::MenuList(lv_obj_t* parent, std::vector<Item> items, int initial_cursor
         lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
         rows_.push_back(row);
 
-        // 光标 bar:左侧 4x22 黑实心矩形,选中时可见。partial refresh 仅刷这块,
-        // 切换光标 dirty 区域很小,EPD 翻动顺滑。
+        // 光標 bar:左側 4x22 黑實心矩形,選中時可見。partial refresh 僅刷這塊,
+        // 切換光標 dirty 區域很小,EPD 翻動順滑。
         auto* bar = lv_obj_create(row);
         lv_obj_set_size(bar, theme::kMenuCursorBarW, theme::kMenuCursorBarH);
         lv_obj_set_pos(bar, theme::kMenuRowPadLeft / 2 - theme::kMenuCursorBarW / 2,
@@ -61,7 +61,7 @@ MenuList::MenuList(lv_obj_t* parent, std::vector<Item> items, int initial_cursor
         lv_label_set_text(lbl, items_[i].title.c_str());
         lv_obj_align(lbl, LV_ALIGN_LEFT_MID, theme::kMenuRowPadLeft, 0);
 
-        // 右侧 chevron(用 ASCII '>' 配合现有 16px 字体即可,不必引大字号)
+        // 右側 chevron(用 ASCII '>' 配合現有 16px 字體即可,不必引大字號)
         auto* chev = lv_label_create(row);
         lv_obj_set_style_text_font(chev, &Zfull_16, 0);
         lv_obj_set_style_text_color(chev, lv_color_black(), 0);
@@ -69,7 +69,7 @@ MenuList::MenuList(lv_obj_t* parent, std::vector<Item> items, int initial_cursor
         lv_obj_align(chev, LV_ALIGN_RIGHT_MID, -theme::kMenuRowPadRight, 0);
     }
 
-    // 右侧 thumb scrollbar,items <= kVisibleRows 时不创建。
+    // 右側 thumb scrollbar,items <= kVisibleRows 時不創建。
     if (static_cast<int>(items_.size()) > kVisibleRows) {
         thumb_ = lv_obj_create(root_);
         ui::StyleScrollbarThumb(thumb_);
@@ -108,7 +108,7 @@ void MenuList::OnEnter() {
 bool MenuList::EnsureCursorVisible() {
     const int total = static_cast<int>(items_.size());
     if (total <= kVisibleRows) {
-        // 不滚动场景:viewport 永远 0。
+        // 不滾動場景:viewport 永遠 0。
         if (viewport_top_ == 0)
             return false;
         viewport_top_ = 0;
@@ -120,7 +120,7 @@ bool MenuList::EnsureCursorVisible() {
     } else if (cursor_ >= viewport_top_ + kVisibleRows) {
         viewport_top_ = cursor_ - kVisibleRows + 1;
     }
-    // clamp:wrap-around 时 cursor 跳到极端可能算超界,这里夹紧。
+    // clamp:wrap-around 時 cursor 跳到極端可能算超界,這裏夾緊。
     const int max_top = total - kVisibleRows;
     if (viewport_top_ < 0)
         viewport_top_ = 0;
@@ -143,8 +143,8 @@ void MenuList::Redraw() {
         lv_obj_set_style_bg_opa(cursor_bars_[i], (i == cursor_) ? LV_OPA_COVER : LV_OPA_TRANSP, 0);
     }
     if (thumb_) {
-        // track 区域 = root 内对称 pad 之间 [kListPadTop, root_h - kListPadBot]。
-        // 数学上 = kVisibleRows × kRowHeight,但用 pad 表达更直接体现"上下对称"。
+        // track 區域 = root 內對稱 pad 之間 [kListPadTop, root_h - kListPadBot]。
+        // 數學上 = kVisibleRows × kRowHeight,但用 pad 表達更直接體現"上下對稱"。
         ui::PositionPagedScrollbar(thumb_,
                                    {.y      = theme::kScrollbarTrackPadTop,
                                     .height = LV_VER_RES - theme::kStatusBarHeight - theme::kScrollbarTrackPadTop -

@@ -1,5 +1,5 @@
-// 空状态:楷书提示 + 副标 + 可选 action。
-// icon 走 IconBlock(size lg / tone muted),与 Section badge / 卡片 icon 同体系。
+// 空狀態:楷書提示 + 副標 + 可選 action。
+// icon 走 IconBlock(size lg / tone muted),與 Section badge / 卡片 icon 同體系。
 
 import type { ReactNode } from 'react';
 import { IconBlock } from '@/components/ui/IconBlock';
@@ -8,7 +8,7 @@ import { cn } from '@/lib/cn';
 interface EmptyStateProps {
   title: string;
   hint?: string;
-  /** lucide 图标(显示在标题上方) */
+  /** lucide 圖標(顯示在標題上方) */
   icon?: ReactNode;
   action?: ReactNode;
   className?: string;

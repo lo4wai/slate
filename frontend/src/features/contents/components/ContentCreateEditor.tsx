@@ -1,5 +1,5 @@
-// 统一新建编辑器 — 图片 + 所有动态类型在同一页面切换。
-// 仅用于新建；编辑流程仍使用各自的 ImageContentEditor / DynamicContentEditor。
+// 統一新建編輯器 — 圖片 + 所有動態類型在同一頁面切換。
+// 僅用於新建；編輯流程仍使用各自的 ImageContentEditor / DynamicContentEditor。
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
@@ -12,7 +12,7 @@ import { useDynamicContentForm } from '@/features/dynamic/hooks/useDynamicConten
 import { ContentTypeCardGrid, ContentTypePicker } from './ContentTypePicker';
 import { ImageCreateForm } from './ImageCreateForm';
 
-// ─── 主编辑器 ──────────────────────────────────────────────────────────────────
+// ─── 主編輯器 ──────────────────────────────────────────────────────────────────
 
 interface ContentCreateEditorProps {
   gid: string;
@@ -54,8 +54,8 @@ export function ContentCreateEditor({ gid, onDone, onEditCreatedImage }: Content
       <PageHeader
         onBack={onDone}
         icon={<Plus size={24} />}
-        title="新建帧"
-        subtitle="选择类型后填写参数，创建后追加至列表末尾，可拖拽改序。"
+        title="新建幀"
+        subtitle="選擇類型後填寫參數，創建後追加至列表末尾，可拖拽改序。"
       />
 
       <div className="mt-6 fade-up fade-up-1">
@@ -63,7 +63,7 @@ export function ContentCreateEditor({ gid, onDone, onEditCreatedImage }: Content
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             <div className="order-2 min-w-0 lg:order-1">
               <p className="font-mono text-[10px] leading-5 text-stone uppercase tracking-[0.18em] ml-0.5 mb-2">
-                设备预览
+                設備預覽
               </p>
               <DynamicFramePreview data={null} pending={false} hasConfig={false} />
             </div>

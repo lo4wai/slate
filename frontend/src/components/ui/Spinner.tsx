@@ -1,4 +1,4 @@
-// 心跳三点 — 砖红呼吸圆点(替代 ASCII spinner)。
+// 心跳三點 — 磚紅呼吸圓點(替代 ASCII spinner)。
 
 import { cn } from '@/lib/cn';
 
@@ -11,7 +11,7 @@ export function Spinner({ label, className }: SpinnerProps) {
   return (
     <span
       role="status"
-      aria-label={label ?? '加载中'}
+      aria-label={label ?? '加載中'}
       className={cn('inline-flex items-center gap-2.5', className)}
     >
       <span className="inline-flex items-center" aria-hidden="true">

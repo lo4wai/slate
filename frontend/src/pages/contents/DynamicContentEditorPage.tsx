@@ -1,7 +1,7 @@
-// 动态内容编辑页 —— create + edit 共用。
+// 動態內容編輯頁 —— create + edit 共用。
 //
 // 路由：
-//   /groups/:gid/contents/dynamic/:contentId/edit — 编辑
+//   /groups/:gid/contents/dynamic/:contentId/edit — 編輯
 
 import { DynamicContentEditor } from '@/features/dynamic/components/DynamicContentEditor';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -11,15 +11,15 @@ import { ContentEditorPageLayout } from '@/features/contents/components/ContentE
 export function DynamicContentEditorPage() {
   return (
     <ContentEditorPageLayout
-      missingContentHint="请从内容列表进入动态内容编辑页。"
-      notFoundTitle="动态内容不存在或已删除"
+      missingContentHint="請從內容列表進入動態內容編輯頁。"
+      notFoundTitle="動態內容不存在或已刪除"
       findContent={(content) => content.kind === 'dynamic'}
       renderEditor={({ gid, content, onDone }) => {
         if (!content.dynamic_type || !content.dynamic_config) {
           return (
             <EmptyState
-              title="动态内容配置缺失"
-              hint="这条动态内容的数据不完整，请返回内容列表后重试。"
+              title="動態內容配置缺失"
+              hint="這條動態內容的數據不完整，請返回內容列表後重試。"
               action={
                 <Button variant="outline" size="sm" onClick={onDone}>
                   返回
@@ -29,7 +29,7 @@ export function DynamicContentEditorPage() {
           );
         }
 
-        // ContentDetail 已经带 dynamic_type / dynamic_config，省一次 GET /contents/:id 请求。
+        // ContentDetail 已經帶 dynamic_type / dynamic_config，省一次 GET /contents/:id 請求。
         return (
           <DynamicContentEditor
             gid={gid}

@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
-/* ─── Design tokens: Mono Press / 报刊编辑风格 ─────────────────────
+/* ─── Design tokens: Mono Press / 報刊編輯風格 ─────────────────────
  *
- * Noto Serif SC 做中英文标题锚点，IBM Plex Sans/Mono 做 UI 与技术细节。
- * 配色：#f5f3ed 纸本，#14110d 墨色，#a8281c 砖红仅做警示/危险。
- * 形态：0px 圆角、1–3px hairline 分割，无模糊、无阴影堆叠。
+ * Noto Serif SC 做中英文標題錨點，IBM Plex Sans/Mono 做 UI 與技術細節。
+ * 配色：#f5f3ed 紙本，#14110d 墨色，#a8281c 磚紅僅做警示/危險。
+ * 形態：0px 圓角、1–3px hairline 分割，無模糊、無陰影堆疊。
  */
 @theme {
   /* fonts */
@@ -13,14 +13,14 @@
   --font-mono:  "IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace;
 
   /* mono press palette */
-  --color-paper:       #f5f3ed; /* 纸本底色 */
-  --color-cream:       #efebe1; /* 卡片二级背景 */
-  --color-cream-deep:  #e6e1d4; /* hover / 分组背景 */
+  --color-paper:       #f5f3ed; /* 紙本底色 */
+  --color-cream:       #efebe1; /* 卡片二級背景 */
+  --color-cream-deep:  #e6e1d4; /* hover / 分組背景 */
   --color-ink:         #14110d; /* 主色墨黑 */
   --color-stone:       #6b665d; /* 次要文字(mute) */
   --color-stone-light: #a39d92; /* 弱化文字(dim) */
-  --color-clay:        #a8281c; /* 砖红：仅用于危险/低电量/错误 */
-  --color-line:        #d8d2bf; /* 浅 hairline */
+  --color-clay:        #a8281c; /* 磚紅：僅用於危險/低電量/錯誤 */
+  --color-line:        #d8d2bf; /* 淺 hairline */
 
   /* radius — Mono Press 全部 0px */
   --radius-sm: 0px;
@@ -29,9 +29,9 @@
   --radius-xl: 0px;
 
   /* tracking */
-  /* tracking-tight 主动放宽到 0：原 -0.015em 过紧，中英文混排不耐看。
-     现有 10+ 组件仍写着 `tracking-tight` Tailwind 类，沿用变量等于不再加紧字距。
-     大标题（AuthLayout）单独用硬编码 tracking-[-0.04em] 做报刊腔，不依赖此变量。 */
+  /* tracking-tight 主動放寬到 0：原 -0.015em 過緊，中英文混排不耐看。
+     現有 10+ 組件仍寫着 `tracking-tight` Tailwind 類，沿用變量等於不再加緊字距。
+     大標題（AuthLayout）單獨用硬編碼 tracking-[-0.04em] 做報刊腔，不依賴此變量。 */
   --tracking-tight: 0;
   --tracking-soft:  0.02em;
 
@@ -55,8 +55,8 @@ body {
 }
 * { box-sizing: border-box; }
 
-/* Mono Press: 0px 圆角只作用在本应用明确拥有的基础控件和边框工具类上。
-   避免未来新增 Radix/第三方浮层时被全局 * 静默覆写。 */
+/* Mono Press: 0px 圓角只作用在本應用明確擁有的基礎控件和邊框工具類上。
+   避免未來新增 Radix/第三方浮層時被全局 * 靜默覆寫。 */
 :where(
   button,
   input,
@@ -89,7 +89,7 @@ body {
   color: var(--color-paper);
 }
 
-/* focus ring — ink 色细框，无 blur */
+/* focus ring — ink 色細框，無 blur */
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
@@ -110,7 +110,7 @@ body {
 
 /* ─── Mono Press primitives ──────────────────────────────────────── */
 @layer components {
-  /* 卡片 — 0 圆角 + 纸本底 + 1px 墨线边框 */
+  /* 卡片 — 0 圓角 + 紙本底 + 1px 墨線邊框 */
   .craft-card {
     background: var(--color-paper);
     border: 1px solid var(--color-ink);
@@ -139,13 +139,13 @@ body {
     border-bottom: 1px solid var(--color-ink);
   }
 
-  /* 状态方块：在线=实心墨，离线=空框，警告=实心砖红 */
+  /* 狀態方塊：在線=實心墨，離線=空框，警告=實心磚紅 */
   .dot { display: inline-block; width: 8px; height: 8px; }
   .dot-online  { background: var(--color-ink); border: 1.2px solid var(--color-ink); }
   .dot-offline { background: transparent; border: 1.2px solid var(--color-stone); opacity: 0.55; }
   .dot-warn    { background: var(--color-clay); border: 1.2px solid var(--color-clay); }
 
-  /* small caps 标签 */
+  /* small caps 標籤 */
   .smallcaps {
     font-family: var(--font-sans);
     font-size: 10px;
@@ -154,7 +154,7 @@ body {
     color: var(--color-stone);
   }
 
-  /* loading 点 — ink 色 */
+  /* loading 點 — ink 色 */
   .heart-dot {
     display: inline-block;
     width: 7px; height: 7px;
@@ -195,7 +195,7 @@ body {
   }
 }
 
-/* 入场动画 — @keyframes 留在 @layer 外保证被 animation 属性正确引用 */
+/* 入場動畫 — @keyframes 留在 @layer 外保證被 animation 屬性正確引用 */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }

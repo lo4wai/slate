@@ -1,15 +1,15 @@
-// 拖拽重排公共逻辑 — Groups / GroupDetail / 内容网格 都用这个 hook。
+// 拖拽重排公共邏輯 — Groups / GroupDetail / 內容網格 都用這個 hook。
 //
 // 用法:
 //   const { sensors, currentOrder, orderedItems, onDragEnd } = useDndOrder(
 //     items,
-//     (id) => id,            // 取拖拽 id 的函数(默认就是 String(item))
+//     (id) => id,            // 取拖拽 id 的函數(默認就是 String(item))
 //     (newOrder, { commit, rollback }) =>
 //       mutate({ order: newOrder }, { onSuccess: commit, onError: rollback }),
 //   );
 //
-// 本地只负责拖拽后的即时顺序和失败回滚；最终顺序由调用方 mutation 后 invalidate 的
-// React Query 数据回填。
+// 本地只負責拖拽後的即時順序和失敗回滾；最終順序由調用方 mutation 後 invalidate 的
+// React Query 數據回填。
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';

@@ -13,7 +13,7 @@ export function DynamicAudioSection({
   return (
     <div className="space-y-3">
       <Checkbox
-        label="生成音频"
+        label="生成音頻"
         checked={config.audio_enabled}
         onChange={(value) => onChange({ ...config, audio_enabled: value })}
       />

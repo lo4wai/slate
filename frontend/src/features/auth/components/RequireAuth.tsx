@@ -1,4 +1,4 @@
-// 路由守卫:无 token 跳 /login。
+// 路由守衞:無 token 跳 /login。
 
 import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';

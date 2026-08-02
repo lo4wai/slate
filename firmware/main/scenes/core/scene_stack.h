@@ -1,9 +1,9 @@
 #pragma once
 
-// 场景栈：活跃态通常以 FrameScene 为根；配网和后台刷新也可作为启动根场景。
-// 其他 Scene（设置页 / 子菜单）push 在当前根场景之上。
-// 所有同步切换方法（Push/Pop/Replace）只能由 ui_loop task 调用，否则 LVGL 不安全。
-// Scene::OnEvent 内若需切换，应调 RequestX；ui_loop 在 Dispatch 后调 ApplyPending。
+// 場景棧：活躍態通常以 FrameScene 為根；配網和後台刷新也可作為啓動根場景。
+// 其他 Scene（設置頁 / 子菜單）push 在當前根場景之上。
+// 所有同步切換方法（Push/Pop/Replace）只能由 ui_loop task 調用，否則 LVGL 不安全。
+// Scene::OnEvent 內若需切換，應調 RequestX；ui_loop 在 Dispatch 後調 ApplyPending。
 
 #include <cstdint>
 #include <memory>
@@ -22,7 +22,7 @@ class SceneStack {
         return ctx_;
     }
 
-    // 同步切换（仅 ui_loop 调）
+    // 同步切換（僅 ui_loop 調）
     void Push(std::unique_ptr<Scene> s);
     void Pop();
     void Replace(std::unique_ptr<Scene> s);
@@ -34,16 +34,16 @@ class SceneStack {
         return stack_.empty();
     }
 
-    // 给 Scene::OnEvent 内用的 deferred 切换。Apply 时 ui_loop 取出执行。
+    // 給 Scene::OnEvent 內用的 deferred 切換。Apply 時 ui_loop 取出執行。
     void RequestPush(std::unique_ptr<Scene> s);
     void RequestPop();
     void RequestReplace(std::unique_ptr<Scene> s);
 
-    // ui_loop 每次 Dispatch 后调一次。
+    // ui_loop 每次 Dispatch 後調一次。
     void ApplyPending();
 
-    // 把事件分发给栈顶。阶段 1 仅给 Top()；状态类事件（charge/wifi/sync）也是
-    // 给 Top() 即可，因为子 Scene 不可见时本来就不该处理。
+    // 把事件分發給棧頂。階段 1 僅給 Top()；狀態類事件（charge/wifi/sync）也是
+    // 給 Top() 即可，因為子 Scene 不可見時本來就不該處理。
     void Dispatch(const UiEvent& e);
 
    private:

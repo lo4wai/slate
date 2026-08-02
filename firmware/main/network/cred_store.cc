@@ -47,7 +47,7 @@ bool SaveSecret(const std::string& device_id, const std::string& device_secret) 
 }
 
 void ClearSecret() {
-    // 保留 Wi-Fi 和 server url，只清内容服务端设备身份。
+    // 保留 Wi-Fi 和 server url，只清內容服務端設備身份。
     nvs_store::EraseKey(nvs_schema::kNet, nvs_schema::net::kDevId);
     nvs_store::EraseKey(nvs_schema::kNet, nvs_schema::net::kDevSec);
     ESP_LOGW(kTag, "secret cleared action=reregister_next_boot");
@@ -59,7 +59,7 @@ std::string GetServerUrl() {
 
 void Clear() {
     nvs_store::EraseNamespace(nvs_schema::kNet);
-    // 不读旧 namespace，但恢复出厂时顺手清掉测试残留。
+    // 不讀舊 namespace，但恢復出廠時順手清掉測試殘留。
     nvs_store::EraseNamespace(nvs_schema::kLegacy);
 }
 

@@ -1,4 +1,4 @@
-// Mono Press input：下划线风格，label 用 mono uppercase。
+// Mono Press input：下劃線風格，label 用 mono uppercase。
 
 import { forwardRef, useId, type InputHTMLAttributes } from 'react';
 import { inputCls } from '@/components/ui/styles/form';

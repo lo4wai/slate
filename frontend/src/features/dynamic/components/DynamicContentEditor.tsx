@@ -1,4 +1,4 @@
-// 动态内容编辑器 —— 编辑动态内容配置。
+// 動態內容編輯器 —— 編輯動態內容配置。
 
 import { useCallback, useMemo, type FormEvent } from 'react';
 import { Sparkles } from 'lucide-react';
@@ -88,7 +88,7 @@ export function DynamicContentEditor({
   const onSubmit = useCallback(async () => {
     const parsed = form.submitConfig();
     if (!parsed.ok) {
-      toast.error('配置有误', parsed.error);
+      toast.error('配置有誤', parsed.error);
       return;
     }
     try {
@@ -106,7 +106,7 @@ export function DynamicContentEditor({
       toast.success('已保存');
       onDone();
     } catch (err) {
-      toast.error('保存失败', getApiErrorMessage(err));
+      toast.error('保存失敗', getApiErrorMessage(err));
     }
   }, [content.id, form, onDone, setBaseline, toast, update]);
 
@@ -123,8 +123,8 @@ export function DynamicContentEditor({
       <PageHeader
         onBack={onDone}
         icon={<Sparkles size={24} />}
-        title="编辑动态内容"
-        subtitle="动态内容由服务端生成 400×300 1bpp 帧，设备端直接显示并叠加状态栏。"
+        title="編輯動態內容"
+        subtitle="動態內容由服務端生成 400×300 1bpp 幀，設備端直接顯示併疊加狀態欄。"
       />
 
       <div className="mt-6 fade-up fade-up-1">
@@ -161,7 +161,7 @@ export function DynamicContentEditor({
                 showAudio={showAudio}
                 contentId={content.id}
                 dashboardData={form.dashboardData}
-                dashboardDataLabel="当前数据 JSON"
+                dashboardDataLabel="當前數據 JSON"
               />
             ) : null
           }

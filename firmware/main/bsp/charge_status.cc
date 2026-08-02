@@ -91,9 +91,9 @@ void ChargeStatus::TickTaskEntry(void* arg) {
 }
 
 void ChargeStatus::TickTaskLoop() {
-    // 有外部电源时 500 ms：去抖窗口(kStableHighMs=400/kAltWindowMs=1500)需要密集采样，
-    // 且此时不省电(充电中暂停睡眠)。纯电池(无外部电源)时只需察觉「USB 插入」这一个 LOW
-    // 沿，放慢到 2 s 让自动 light sleep 睡得更久；插入后下一拍即切回 500 ms 完成去抖。
+    // 有外部電源時 500 ms：去抖窗口(kStableHighMs=400/kAltWindowMs=1500)需要密集採樣，
+    // 且此時不省電(充電中暫停睡眠)。純電池(無外部電源)時只需察覺「USB 插入」這一個 LOW
+    // 沿，放慢到 2 s 讓自動 light sleep 睡得更久；插入後下一拍即切回 500 ms 完成去抖。
     constexpr TickType_t kPollPowered = pdMS_TO_TICKS(500);
     constexpr TickType_t kPollBattery = pdMS_TO_TICKS(2000);
     while (tick_running_.load(std::memory_order_acquire)) {
@@ -143,15 +143,15 @@ void ChargeStatus::Tick(int64_t now_ms) {
 
     const bool no_battery = alt_seen && !detect_stable && !full_stable;
 
-    // 状态优先级(从高到低):
-    //   1. 没电源 → kNoPower
-    //   2. 检测到无电池(两线 ~1Hz 交替) → kNoBattery
-    //   3. CHRG_L 稳定低（明确「正在充电」信号） → kCharging
-    //      ← 这一条必须比 kFull 优先,否则:充电 IC 的 STDBY 是 open-drain,
-    //      没装外部上拉时浮空读 1 是常态,会被误判 full_stable=true → kFull,
-    //      表现为充电中显示满电图标而不是 BOLT。
-    //   4. STDBY 稳定高 → kFull
-    //   5. 兜底:有电源但都不稳定 → kCharging
+    // 狀態優先級(從高到低):
+    //   1. 沒電源 → kNoPower
+    //   2. 檢測到無電池(兩線 ~1Hz 交替) → kNoBattery
+    //   3. CHRG_L 穩定低（明確「正在充電」信號） → kCharging
+    //      ← 這一條必須比 kFull 優先,否則:充電 IC 的 STDBY 是 open-drain,
+    //      沒裝外部上拉時浮空讀 1 是常態,會被誤判 full_stable=true → kFull,
+    //      表現為充電中顯示滿電圖標而不是 BOLT。
+    //   4. STDBY 穩定高 → kFull
+    //   5. 兜底:有電源但都不穩定 → kCharging
     State state = State::kNoPower;
     if (!power_present) {
         state = State::kNoPower;

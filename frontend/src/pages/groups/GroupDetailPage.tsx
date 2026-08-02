@@ -1,6 +1,6 @@
-// 组详情：metadata + 内容网格（拖拽排序 + 试听/编辑/删除）+ 顶部「新增」。
+// 組詳情：metadata + 內容網格（拖拽排序 + 試聽/編輯/刪除）+ 頂部「新增」。
 //
-// dnd-kit reorder 通过 useDndOrder 复用；本地顺序会在保存失败时回滚。
+// dnd-kit reorder 通過 useDndOrder 複用；本地順序會在保存失敗時回滾。
 
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Layers } from 'lucide-react';
@@ -29,7 +29,7 @@ export function GroupDetailPage() {
   return (
     <RequireRouteParams
       names={['gid'] as const}
-      hint="请从总览页进入具体内容组。"
+      hint="請從總覽頁進入具體內容組。"
       action={<BackHomeLink />}
     >
       {({ gid }) => <GroupDetailContent gid={gid} navigate={navigate} />}
@@ -60,7 +60,7 @@ function GroupDetailContent({
           onSuccess: commit,
           onError: (err) => {
             rollback();
-            toast.error('排序保存失败', getApiErrorMessage(err));
+            toast.error('排序保存失敗', getApiErrorMessage(err));
           },
         }
       )
@@ -81,20 +81,20 @@ function GroupDetailContent({
   if (groupQuery.isPending) {
     return (
       <div className="pt-16 text-center">
-        <Spinner label="加载中" />
+        <Spinner label="加載中" />
       </div>
     );
   }
   if (groupQuery.isError || !group) {
     return (
       <EmptyState
-        title="内容不存在或已被删除"
+        title="內容不存在或已被刪除"
         action={
           <Link
             to={appRoutes.home}
             className="inline-flex items-center gap-1 text-[13px] text-stone border-b border-stone"
           >
-            <ArrowLeft size={13} /> 返回总览
+            <ArrowLeft size={13} /> 返回總覽
           </Link>
         }
       />
@@ -106,9 +106,9 @@ function GroupDetailContent({
       <GroupHeader group={group} onBack={goBack} onAdd={openCreate} />
       <div className="mt-6 fade-up fade-up-1">
         {contents.isPending ? (
-          <Spinner label="加载中" />
+          <Spinner label="加載中" />
         ) : contents.isError ? (
-          <EmptyState title="加载失败" hint="请刷新重试。" />
+          <EmptyState title="加載失敗" hint="請刷新重試。" />
         ) : contents.data && contents.data.length > 0 ? (
           <SortableGrid
             sensors={sensors}
@@ -121,11 +121,11 @@ function GroupDetailContent({
           />
         ) : (
           <EmptyState
-            title="尚无内容"
-            hint="点击新建帧开始添加内容。"
+            title="尚無內容"
+            hint="點擊新建幀開始添加內容。"
             action={
               <Button onClick={openCreate} iconLeft={<Plus size={16} />}>
-                新建帧
+                新建幀
               </Button>
             }
           />
@@ -145,12 +145,12 @@ function BackHomeLink() {
       to={appRoutes.home}
       className="inline-flex items-center gap-1 text-[13px] text-stone border-b border-stone"
     >
-      <ArrowLeft size={13} /> 返回总览
+      <ArrowLeft size={13} /> 返回總覽
     </Link>
   );
 }
 
-// ───── 组标题 + inline 改名 + 新建内容 ───────────────────────────
+// ───── 組標題 + inline 改名 + 新建內容 ───────────────────────────
 function GroupHeader({
   group,
   onBack,
@@ -170,7 +170,7 @@ function GroupHeader({
         await update.mutateAsync({ name });
         toast.success('已改名');
       } catch (err) {
-        toast.error('改名失败', getApiErrorMessage(err));
+        toast.error('改名失敗', getApiErrorMessage(err));
         throw err;
       }
     }
@@ -178,7 +178,7 @@ function GroupHeader({
 
   return (
     <PageHeader
-      backLabel="总览"
+      backLabel="總覽"
       onBack={onBack}
       icon={<Layers size={24} />}
       title={group.name}
@@ -197,10 +197,10 @@ function GroupHeader({
           buttonClassName="p-2 -m-1"
         />
       }
-      subtitle={`${group.content_count} 项 · ${formatBytes(group.total_bytes)}`}
+      subtitle={`${group.content_count} 項 · ${formatBytes(group.total_bytes)}`}
       action={
         <Button iconLeft={<Plus size={16} />} size="sm" onClick={onAdd}>
-          新建帧
+          新建幀
         </Button>
       }
     />

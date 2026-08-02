@@ -72,7 +72,7 @@ export function CitySearch({
       onFocus={() => {
         if (results.length > 0) setOpen(true);
       }}
-      placeholder="输入城市名或省份名，如：长沙、广东"
+      placeholder="輸入城市名或省份名，如：長沙、廣東"
       results={results}
       open={open}
       onOpenChange={setOpen}

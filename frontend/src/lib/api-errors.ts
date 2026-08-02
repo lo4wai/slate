@@ -7,7 +7,7 @@ interface ApiErrorResponse {
 
 export type ApiError = AxiosError<ApiErrorResponse>;
 
-export function getApiErrorMessage(err: unknown, fallback = '操作失败'): string {
+export function getApiErrorMessage(err: unknown, fallback = '操作失敗'): string {
   if (err instanceof AxiosError) {
     const data = err.response?.data as ApiErrorResponse | undefined;
     return data?.message ?? data?.error ?? fallback;

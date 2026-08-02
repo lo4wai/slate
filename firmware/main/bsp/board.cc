@@ -19,15 +19,15 @@ namespace {
 constexpr char     kTag[]          = "board";
 constexpr uint16_t kNavLongPressMs = 1000;
 
-// deep sleep 唤醒(非 cold boot)后，睡前用 rtc_gpio_hold_en 锁住的 EXT1 唤醒源
-// (GPIO0/18/2)仍处于 RTC IO + hold 态。显式释放并交还数字 IO 矩阵，iot_button /
-// charge_status 才能正常驱动这些脚。原先隐式依赖 ESP_SLEEP_GPIO_RESET_WORKAROUND，
-// 这里与睡眠侧(sleep_manager.cc::PrepareWakeupGpio)对称地显式释放。
-// VBAT_PWR(GPIO17) 不在此释放：它是供电自锁，断电窗口=变砖，交由 board_power 的
-// VbatPowerOn 接管(先驱动高再切域)。
+// deep sleep 喚醒(非 cold boot)後，睡前用 rtc_gpio_hold_en 鎖住的 EXT1 喚醒源
+// (GPIO0/18/2)仍處於 RTC IO + hold 態。顯式釋放並交還數字 IO 矩陣，iot_button /
+// charge_status 才能正常驅動這些腳。原先隱式依賴 ESP_SLEEP_GPIO_RESET_WORKAROUND，
+// 這裏與睡眠側(sleep_manager.cc::PrepareWakeupGpio)對稱地顯式釋放。
+// VBAT_PWR(GPIO17) 不在此釋放：它是供電自鎖，斷電窗口=變磚，交由 board_power 的
+// VbatPowerOn 接管(先驅動高再切域)。
 void ReleaseDeepSleepWakeHolds() {
     if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_UNDEFINED)
-        return;  // cold boot：无遗留 hold
+        return;  // cold boot：無遺留 hold
     ESP_LOGD(kTag, "wake hold release");
     const gpio_num_t pins[] = {
         static_cast<gpio_num_t>(BOOT_BUTTON_GPIO),
@@ -53,8 +53,8 @@ void Board::Init() {
     InitPower();
     InitI2c();
     InitChargeStatus();
-    // 阶段 1：屏保取消，绿 LED 不再随充电状态闪烁。InitLed 只把 GPIO3 配 OUTPUT
-    // 并熄灭，避免 strapping pin 浮空。状态指示交给 StatusBar。
+    // 階段 1：屏保取消，綠 LED 不再隨充電狀態閃爍。InitLed 只把 GPIO3 配 OUTPUT
+    // 並熄滅，避免 strapping pin 浮空。狀態指示交給 StatusBar。
     power_->InitLed();
     InitEpd();
     InitButtons();
@@ -65,18 +65,18 @@ void Board::Init() {
 void Board::InitPower() {
     ESP_LOGD(kTag, "init power begin");
     charge_ = std::make_unique<ChargeStatus>();
-    // BoardPowerBsp 一次 gpio_config 把 audio rail / PA CTRL / VBAT 三个 pin 都
-    // 配 OUTPUT,PA CTRL(GPIO46) 在构造完成的瞬间被驱动 LOW。后面 PowerAudioOn
-    // 给 PA U5 通电时,CTRL 已稳定 LOW → 消除开机"啵"声(详见 board_power.cc)。
+    // BoardPowerBsp 一次 gpio_config 把 audio rail / PA CTRL / VBAT 三個 pin 都
+    // 配 OUTPUT,PA CTRL(GPIO46) 在構造完成的瞬間被驅動 LOW。後面 PowerAudioOn
+    // 給 PA U5 通電時,CTRL 已穩定 LOW → 消除開機"啵"聲(詳見 board_power.cc)。
     // EPD_PWR(GPIO6) 由 EpdSsd1683 自管。
     power_ = std::make_unique<BoardPowerBsp>(AUDIO_PWR_PIN, AUDIO_CODEC_PA_PIN, VBAT_PWR_PIN);
-    power_->VbatPowerOn();   // GPIO17=1,自锁电源
-    power_->PowerAudioOn();  // GPIO42=1,AVDD_3V3 起来,I²C 上拉才有效
+    power_->VbatPowerOn();   // GPIO17=1,自鎖電源
+    power_->PowerAudioOn();  // GPIO42=1,AVDD_3V3 起來,I²C 上拉才有效
 
-    // 等用户松开下键(SW1=GPIO18)。开机时硬件靠 SW1 把 Q5 栅极拉低维持电源,
-    // VbatPowerOn 之后软件接管；但按键驱动一启动就会读到下键的「已按」状态而误触
-    // 一次回调,所以 busy-wait 等用户先松开。
-    // 2s 超时是兜底:理论上电源故障跑不到这,但加上避免硬件诡异时永久挂死。
+    // 等用户鬆開下鍵(SW1=GPIO18)。開機時硬件靠 SW1 把 Q5 柵極拉低維持電源,
+    // VbatPowerOn 之後軟件接管；但按鍵驅動一啓動就會讀到下鍵的「已按」狀態而誤觸
+    // 一次回調,所以 busy-wait 等用户先鬆開。
+    // 2s 超時是兜底:理論上電源故障跑不到這,但加上避免硬件詭異時永久掛死。
     constexpr int kMaxWaitMs = 2000;
     int           waited     = 0;
     while (!gpio_get_level(static_cast<gpio_num_t>(POWER_KEY_GPIO))) {
@@ -123,11 +123,11 @@ void Board::InitButtons() {
     ESP_LOGD(kTag, "init buttons up=%d down=%d enter=%d long_ms=%u", static_cast<int>(UP_BUTTON_GPIO),
              static_cast<int>(DOWN_BUTTON_GPIO), static_cast<int>(BOOT_BUTTON_GPIO),
              static_cast<unsigned>(kNavLongPressMs));
-    // 三个业务按键统一 1s 长按阈值。具体语义由当前 Scene 处理:
-    // FrameScene 中 UP/DOWN 长按切内容组,ENTER 长按进设置;危险动作在各确认页长按执行。
-    // 不启用 iot_button 的 enable_power_save：它会注册一个 GPIO wake ISR，
-    // flash cache 关闭期间（例如 LittleFS rename）触发会因 ISR 不在 IRAM 崩溃。
-    // Deep sleep 唤醒由 SleepManager 进入睡眠前单独配置 EXT1。
+    // 三個業務按鍵統一 1s 長按閾值。具體語義由當前 Scene 處理:
+    // FrameScene 中 UP/DOWN 長按切內容組,ENTER 長按進設置;危險動作在各確認頁長按執行。
+    // 不啓用 iot_button 的 enable_power_save：它會註冊一個 GPIO wake ISR，
+    // flash cache 關閉期間（例如 LittleFS rename）觸發會因 ISR 不在 IRAM 崩潰。
+    // Deep sleep 喚醒由 SleepManager 進入睡眠前單獨配置 EXT1。
     up_btn_   = std::make_unique<Button>(static_cast<gpio_num_t>(UP_BUTTON_GPIO), false, kNavLongPressMs, 0);
     down_btn_ = std::make_unique<Button>(static_cast<gpio_num_t>(DOWN_BUTTON_GPIO), false, kNavLongPressMs, 0);
     boot_btn_ = std::make_unique<Button>(static_cast<gpio_num_t>(BOOT_BUTTON_GPIO), false, kNavLongPressMs, 0);
@@ -143,7 +143,7 @@ bool Board::ReadBattery(uint16_t* voltage_mv, uint8_t* percent) {
     if (!battery_adc_)
         return false;
 
-    // 先看充电状态机:无电池时电压采样不可信,直接返失败。
+    // 先看充電狀態機:無電池時電壓採樣不可信,直接返失敗。
     if (charge_ && charge_->Get().no_battery) {
         return false;
     }

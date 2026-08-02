@@ -4,7 +4,7 @@ export function pcm16LeToAudioBuffer(
   sampleRate: number
 ): AudioBuffer {
   if (data.byteLength % Int16Array.BYTES_PER_ELEMENT !== 0) {
-    throw new Error('PCM 数据长度不是 16-bit 对齐。');
+    throw new Error('PCM 數據長度不是 16-bit 對齊。');
   }
 
   const view = new DataView(data);

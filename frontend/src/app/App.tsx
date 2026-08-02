@@ -33,7 +33,7 @@ function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
-    // 当前路由没有 hash 锚点导航，只在页面路径切换时回到顶部。
+    // 當前路由沒有 hash 錨點導航，只在頁面路徑切換時回到頂部。
   }, [pathname]);
   return null;
 }
@@ -72,7 +72,7 @@ export function App() {
 function RouteFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <Spinner label="加载中" />
+      <Spinner label="加載中" />
     </div>
   );
 }

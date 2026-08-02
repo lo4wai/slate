@@ -1,5 +1,5 @@
-// 新建帧页面 — 路由 /groups/:gid/contents/new
-// 统一入口，支持图片 + 所有动态类型在同一页面切换。
+// 新建幀頁面 — 路由 /groups/:gid/contents/new
+// 統一入口，支持圖片 + 所有動態類型在同一頁面切換。
 
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ export function ContentNewPage() {
   const navigate = useNavigate();
 
   return (
-    <RequireRouteParams names={['gid'] as const} hint="请从总览页进入具体内容组。">
+    <RequireRouteParams names={['gid'] as const} hint="請從總覽頁進入具體內容組。">
       {({ gid }) => <ContentNewPageContent gid={gid} navigate={(path) => navigate(path)} />}
     </RequireRouteParams>
   );

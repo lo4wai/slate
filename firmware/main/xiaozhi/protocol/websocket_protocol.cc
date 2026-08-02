@@ -50,7 +50,7 @@ bool WebsocketProtocol::OpenAudioChannel() {
 
     settings::WebsocketConfig cfg;
     if (!settings::LoadWebsocket(cfg)) {
-        SetError("未获取 WebSocket 配置");
+        SetError("未獲取 WebSocket 配置");
         return false;
     }
     if (cfg.version > 0)
@@ -74,7 +74,7 @@ bool WebsocketProtocol::OpenAudioChannel() {
     auto network   = std::make_unique<EspNetwork>();
     auto websocket = network->CreateWebSocket(1);
     if (!websocket) {
-        SetError("WebSocket 初始化失败");
+        SetError("WebSocket 初始化失敗");
         return false;
     }
     std::string token = cfg.token;
@@ -108,7 +108,7 @@ bool WebsocketProtocol::OpenAudioChannel() {
     websocket->OnError([this](int err) { ESP_LOGW(kTag, "error transport=websocket err=%d", err); });
 
     if (!websocket->Connect(cfg.url.c_str())) {
-        SetError("连接小智 WebSocket 失败");
+        SetError("連接小智 WebSocket 失敗");
         return false;
     }
     {
@@ -120,21 +120,21 @@ bool WebsocketProtocol::OpenAudioChannel() {
     }
     const std::string hello = GetHelloMessage();
     if (!SendText(hello))
-        return close_failed_channel("发送小智 WebSocket hello 失败");
+        return close_failed_channel("發送小智 WebSocket hello 失敗");
 
     const EventBits_t bits = xEventGroupWaitBits(event_group_, kServerHelloEvent | kChannelClosedEvent, pdTRUE, pdFALSE,
                                                  pdMS_TO_TICKS(10000));
     if (bits & kChannelClosedEvent) {
-        // ParseServerHello 失败时已 SetError 具体原因,这里只在还未设过 error 时
-        // 兜底报"连接已断开",避免覆盖具体诊断信息。
+        // ParseServerHello 失敗時已 SetError 具體原因,這裏只在還未設過 error 時
+        // 兜底報"連接已斷開",避免覆蓋具體診斷信息。
         if (!IsAudioChannelCloseRequested() && !error_occurred_.load(std::memory_order_acquire))
-            SetError("小智 WebSocket 连接已断开");
+            SetError("小智 WebSocket 連接已斷開");
         return close_failed_channel(nullptr);
     }
     if (!(bits & kServerHelloEvent)) {
         ESP_LOGW(kTag, "hello timeout transport=websocket connected=%d",
                  websocket_ && websocket_->IsConnected() ? 1 : 0);
-        return close_failed_channel("小智 WebSocket 响应超时");
+        return close_failed_channel("小智 WebSocket 響應超時");
     }
     bool close_requested = false;
     {
@@ -317,8 +317,8 @@ std::string WebsocketProtocol::GetHelloMessage() const {
 }
 
 void WebsocketProtocol::ParseServerHello(const cJSON* root) {
-    // 失败路径走 SetError + setBits(kChannelClosedEvent),让 OpenAudioChannel 立刻
-    // 退出等待并保留具体错误原因,不再等满 10s 才报"响应超时"。
+    // 失敗路徑走 SetError + setBits(kChannelClosedEvent),讓 OpenAudioChannel 立刻
+    // 退出等待並保留具體錯誤原因,不再等滿 10s 才報"響應超時"。
     auto fail = [this](const char* reason) {
         SetError(reason);
         xEventGroupSetBits(event_group_, kChannelClosedEvent);
@@ -327,7 +327,7 @@ void WebsocketProtocol::ParseServerHello(const cJSON* root) {
     if (!cJSON_IsString(transport) || std::strcmp(transport->valuestring, "websocket") != 0) {
         ESP_LOGW(kTag, "server hello ignored reason=transport transport=%s",
                  cJSON_IsString(transport) ? transport->valuestring : "(missing)");
-        fail("小智 WebSocket 协议不匹配");
+        fail("小智 WebSocket 協議不匹配");
         return;
     }
     cJSON* sid = cJSON_GetObjectItem(root, "session_id");
@@ -346,7 +346,7 @@ void WebsocketProtocol::ParseServerHello(const cJSON* root) {
         if (cJSON_IsNumber(sample_rate_item)) {
             if (!IsSupportedOpusSampleRate(sample_rate_item->valueint)) {
                 ESP_LOGW(kTag, "server hello ignored reason=sample_rate sample_rate=%d", sample_rate_item->valueint);
-                fail("小智 WebSocket 音频采样率不支持");
+                fail("小智 WebSocket 音頻採樣率不支持");
                 return;
             }
             sample_rate = sample_rate_item->valueint;
@@ -355,7 +355,7 @@ void WebsocketProtocol::ParseServerHello(const cJSON* root) {
             if (!IsSupportedOpusFrameDuration(frame_duration_item->valueint)) {
                 ESP_LOGW(kTag, "server hello ignored reason=frame_duration frame_duration=%d",
                          frame_duration_item->valueint);
-                fail("小智 WebSocket 音频帧长不支持");
+                fail("小智 WebSocket 音頻幀長不支持");
                 return;
             }
             frame_duration = frame_duration_item->valueint;

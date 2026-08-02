@@ -94,8 +94,8 @@ void EpdSsd1683::Init() {
              static_cast<int>(mosi_), static_cast<int>(sclk_));
     SpiPortInit();
     SpiGpioInit();
-    // 不在驱动初始化阶段主动刷新屏幕。EPD 物理画面可在断电后保留；
-    // 首屏/内容变化由上层 RequestUrgent*Refresh 触发时再 EpdInit + 刷新。
+    // 不在驅動初始化階段主動刷新屏幕。EPD 物理畫面可在斷電後保留；
+    // 首屏/內容變化由上層 RequestUrgent*Refresh 觸發時再 EpdInit + 刷新。
     EpdPowerOff();
 
     lvgl_port_cfg_t pc = ESP_LVGL_PORT_INIT_CONFIG();
@@ -104,8 +104,8 @@ void EpdSsd1683::Init() {
     lvgl_port_init(&pc);
     LvglPortLockGuard lvgl_lock;
     if (!lvgl_lock.locked()) {
-        // Init 失败后续 Refresh 会读到半初始化的 lvgl_display_/buffer_ 段错误。
-        // 直接重启，OOM/资源问题往往在重启后能恢复，比留下"看似活着的死设备"安全。
+        // Init 失敗後續 Refresh 會讀到半初始化的 lvgl_display_/buffer_ 段錯誤。
+        // 直接重啓，OOM/資源問題往往在重啓後能恢復，比留下"看似活着的死設備"安全。
         ESP_LOGE(kTag, "init failed reason=lvgl_lock action=restart");
         esp_restart();
     }
@@ -196,13 +196,13 @@ void EpdSsd1683::LvglFlushCb(lv_display_t* disp, const lv_area_t* area, uint8_t*
         self->dirty_           = u;
         self->pending_         = true;
         self->last_flush_tick_ = xTaskGetTickCount();
-        // flush_cb notify refresh_task。LVGL 整屏 invalidate 可能分多个 chunk
-        // 多次调用 flush_cb,refresh_task 头部的 sliding debounce 把这些 notify
-        // 合并成一轮刷新——所以这里大胆 notify，不会出现「半成品 buffer 抢跑全刷」。
+        // flush_cb notify refresh_task。LVGL 整屏 invalidate 可能分多個 chunk
+        // 多次調用 flush_cb,refresh_task 頭部的 sliding debounce 把這些 notify
+        // 合併成一輪刷新——所以這裏大膽 notify，不會出現「半成品 buffer 搶跑全刷」。
         task      = self->refresh_task_;
         do_notify = (task != nullptr);
-        // LVGL flush 高频,默认 ESP_LOGD 隐藏。需要诊断"残影 / partial 区不正确"
-        // 时,串口跑一次 esp_log_level_set("epd", ESP_LOG_DEBUG) 打开。
+        // LVGL flush 高頻,默認 ESP_LOGD 隱藏。需要診斷"殘影 / partial 區不正確"
+        // 時,串口跑一次 esp_log_level_set("epd", ESP_LOG_DEBUG) 打開。
         ESP_LOGD(kTag, "flush chunk=(%d,%d,%dx%d) accum_dirty=(%d,%d,%dx%d)", r.x, r.y, r.w, r.h, u.x, u.y, u.w, u.h);
     }
 
@@ -214,7 +214,7 @@ void EpdSsd1683::LvglFlushCb(lv_display_t* disp, const lv_area_t* area, uint8_t*
 
 bool EpdSsd1683::IsRefreshPending() {
     xSemaphoreTake(dirty_mutex_, portMAX_DELAY);
-    // force_full_refresh_ 直到全刷完成才清，覆盖整个「main 调 RequestUrgentFullRefresh
+    // force_full_refresh_ 直到全刷完成才清，覆蓋整個「main 調 RequestUrgentFullRefresh
     // → LVGL 渲染 → flush_cb notify → refresh_task 全刷」的等待窗口。
     bool b = pending_ || urgent_refresh_ || force_full_refresh_ || refresh_in_progress_;
     xSemaphoreGive(dirty_mutex_);
@@ -237,9 +237,9 @@ bool EpdSsd1683::WaitForRefreshIdle(int timeout_ms) {
 }
 
 void EpdSsd1683::RequestUrgentPartialRefresh() {
-    // 设标志位 + notify,立即返回。不在这里等 LVGL,因为 flush_cb 也会 notify;
-    // RefreshTaskLoop 头部的 sliding debounce（50 ms 内有新 notify 就续 50 ms，
-    // 最长 500 ms）会自然吸收「ShowCar 后 LVGL 50 ms 才 flush」这一段时间。
+    // 設標誌位 + notify,立即返回。不在這裏等 LVGL,因為 flush_cb 也會 notify;
+    // RefreshTaskLoop 頭部的 sliding debounce（50 ms 內有新 notify 就續 50 ms，
+    // 最長 500 ms）會自然吸收「ShowCar 後 LVGL 50 ms 才 flush」這一段時間。
     xSemaphoreTake(dirty_mutex_, portMAX_DELAY);
     urgent_refresh_      = true;
     refresh_in_progress_ = true;
@@ -253,7 +253,7 @@ void EpdSsd1683::RequestUrgentPartialRefresh() {
 }
 
 void EpdSsd1683::RequestUrgentFullRefresh() {
-    // 同上:设 force_full + notify,立即返回。debounce 吸收 LVGL flush。
+    // 同上:設 force_full + notify,立即返回。debounce 吸收 LVGL flush。
     xSemaphoreTake(dirty_mutex_, portMAX_DELAY);
     force_full_refresh_  = true;
     refresh_in_progress_ = true;
@@ -339,12 +339,12 @@ bool EpdSsd1683::RefreshTaskShouldStop() {
 }
 
 void EpdSsd1683::DebounceRefreshNotify() {
-    constexpr TickType_t kDebounceMs    = 50;   // 每来一次新 notify，续 50 ms
-    constexpr TickType_t kDebounceMaxMs = 500;  // 兜底：总等待最多 500 ms，防止 LVGL 永不静默
+    constexpr TickType_t kDebounceMs    = 50;   // 每來一次新 notify，續 50 ms
+    constexpr TickType_t kDebounceMaxMs = 500;  // 兜底：總等待最多 500 ms，防止 LVGL 永不靜默
 
-    // Sliding debounce：在 50 ms 窗口内吸收所有新 notify，每来一次重置窗口，
-    // 直到 50 ms 没有新 notify 才进入真正的刷新。这一步把 LVGL 把整屏
-    // invalidate 分成多个 chunk 多次调用 flush_cb 的"碎片"合并成一轮刷新。
+    // Sliding debounce：在 50 ms 窗口內吸收所有新 notify，每來一次重置窗口，
+    // 直到 50 ms 沒有新 notify 才進入真正的刷新。這一步把 LVGL 把整屏
+    // invalidate 分成多個 chunk 多次調用 flush_cb 的"碎片"合併成一輪刷新。
     const TickType_t first_tick = xTaskGetTickCount();
     const TickType_t hard_max   = first_tick + pdMS_TO_TICKS(kDebounceMaxMs);
     TickType_t       deadline   = first_tick + pdMS_TO_TICKS(kDebounceMs);
@@ -364,8 +364,8 @@ void EpdSsd1683::DebounceRefreshNotify() {
 }
 
 bool EpdSsd1683::TakeRefreshRequest(bool& urgent, bool& force_full) {
-    // read-and-clear at start:防止 refresh_task 跑刷新期间又有
-    // RequestUrgentXxxRefresh 设 flag 时,本轮完成时把它误清。
+    // read-and-clear at start:防止 refresh_task 跑刷新期間又有
+    // RequestUrgentXxxRefresh 設 flag 時,本輪完成時把它誤清。
     xSemaphoreTake(dirty_mutex_, portMAX_DELAY);
     if (refresh_task_stop_) {
         refresh_in_progress_ = false;
@@ -390,8 +390,8 @@ bool EpdSsd1683::ThrottleRefreshSampling(bool urgent, bool force_full) {
     if (urgent || force_full)
         return true;
 
-    // 周期性采样:LVGL 自驱(动画/滚动)flush 触发 notify,但没设 urgent flag。
-    // sample_interval_ms_ 节流防止过频刷新损伤 EPD。
+    // 週期性採樣:LVGL 自驅(動畫/滾動)flush 觸發 notify,但沒設 urgent flag。
+    // sample_interval_ms_ 節流防止過頻刷新損傷 EPD。
     const TickType_t now_t = xTaskGetTickCount();
     const TickType_t mn    = pdMS_TO_TICKS(sample_interval_ms_);
     const TickType_t el    = (last_sample_tick_ == 0) ? mn : (now_t - last_sample_tick_);
@@ -424,9 +424,9 @@ bool EpdSsd1683::CaptureRefreshSnapshot(bool force_full, epd::DiffResult& diff, 
 }
 
 bool EpdSsd1683::ShouldUseFullRefresh(const epd::DiffResult& diff, bool force_full, bool prev_synced) const {
-    // 决策 full vs partial:force_full / 累积 partial >= 阈值 / 差异 ≥ 30%(大改动
-    // partial 出来会一片错乱) → 必须 full;首次未 sync 也要 full。timer wake
-    // 会先用 SeedPreviousRaw1bpp 把 prev_snapshot 跟物理屏幕对齐,不需要额外越过。
+    // 決策 full vs partial:force_full / 累積 partial >= 閾值 / 差異 ≥ 30%(大改動
+    // partial 出來會一片錯亂) → 必須 full;首次未 sync 也要 full。timer wake
+    // 會先用 SeedPreviousRaw1bpp 把 prev_snapshot 跟物理屏幕對齊,不需要額外越過。
     constexpr float kForceFullDiffRatio = 0.30f;
     const bool      full                = force_full || partial_since_full_ >= kPartialBeforeFullCleanup ||
                       diff.ratio >= kForceFullDiffRatio || !prev_synced;
@@ -438,10 +438,10 @@ bool EpdSsd1683::ShouldUseFullRefresh(const epd::DiffResult& diff, bool force_fu
 void EpdSsd1683::RunRefresh(bool full_refresh) {
     const int64_t start_us = esp_timer_get_time();
     ESP_LOGD(kTag, "refresh begin full=%d partial_since_full=%d", full_refresh ? 1 : 0, partial_since_full_);
-    // 两条路径都先调 EpdInit() 做硬 reset + 寄存器初始化:
-    // 1) full 路径里 EpdDisplayFull 自己会发 0xA5 切到 full 模式;
-    // 2) partial 路径靠 EpdInit 把 EPD 拉回默认/partial 模式,否则上一轮
-    //    full 留下的 0xA5 LUT 会让本轮 partial 视觉上变成全刷闪一下。
+    // 兩條路徑都先調 EpdInit() 做硬 reset + 寄存器初始化:
+    // 1) full 路徑裏 EpdDisplayFull 自己會發 0xA5 切到 full 模式;
+    // 2) partial 路徑靠 EpdInit 把 EPD 拉回默認/partial 模式,否則上一輪
+    //    full 留下的 0xA5 LUT 會讓本輪 partial 視覺上變成全刷閃一下。
     EpdInit();
     if (full_refresh) {
         EpdDisplayFull();
@@ -476,7 +476,7 @@ void EpdSsd1683::MarkRefreshIdle() {
 void EpdSsd1683::RefreshTaskLoop() {
     ESP_LOGD(kTag, "task start name=epd_refresh");
     while (true) {
-        // 第一次阻塞等 notify。来源:flush_cb / RequestUrgentXxxRefresh / 周期采样(已废)。
+        // 第一次阻塞等 notify。來源:flush_cb / RequestUrgentXxxRefresh / 週期採樣(已廢)。
         if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) == 0)
             continue;
         ESP_LOGD(kTag, "task notified name=epd_refresh");
@@ -501,8 +501,8 @@ void EpdSsd1683::RefreshTaskLoop() {
 
         RunRefresh(ShouldUseFullRefresh(diff, force_full, prev_synced));
 
-        // force_full_refresh_ 已在 start 处清(read-and-clear)。这里不要重设,
-        // 否则会覆盖全刷期间又有新 RequestUrgentFullRefresh 设的 true。
+        // force_full_refresh_ 已在 start 處清(read-and-clear)。這裏不要重設,
+        // 否則會覆蓋全刷期間又有新 RequestUrgentFullRefresh 設的 true。
         FinishRefreshSnapshot();
     }
     ESP_LOGD(kTag, "task exit name=epd_refresh");

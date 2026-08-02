@@ -30,7 +30,7 @@ export function TtsFields({
           value={text}
           onChange={(e) => onTextChange(e.target.value.slice(0, 500))}
           className={cn(inputCls, 'min-h-28 resize-y font-sans text-[14px] leading-6')}
-          placeholder="输入这张图片要播放的语音文案"
+          placeholder="輸入這張圖片要播放的語音文案"
         />
       </label>
       <div>
@@ -50,7 +50,7 @@ export function TtsFields({
         </Select>
       </div>
       {status === 'generating' || status === 'pending' ? (
-        <p className="font-sans text-[11px] text-stone">音频生成中</p>
+        <p className="font-sans text-[11px] text-stone">音頻生成中</p>
       ) : status === 'failed' && error ? (
         <p className="font-sans text-[11px] text-clay truncate" title={error}>
           {error}

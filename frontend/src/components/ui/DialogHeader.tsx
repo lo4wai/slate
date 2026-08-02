@@ -1,4 +1,4 @@
-// 对话框通用标题区：图标块 + 标题/副标题 + 关闭按钮。
+// 對話框通用標題區：圖標塊 + 標題/副標題 + 關閉按鈕。
 
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -32,7 +32,7 @@ export function DialogHeader({ icon, title, description, onClose, className }: D
       </div>
       <Dialog.Close asChild>
         <button
-          aria-label="关闭"
+          aria-label="關閉"
           onClick={onClose}
           className="p-1.5 -m-1.5 text-stone hover:text-ink hover:bg-cream flex-shrink-0 transition-colors"
         >

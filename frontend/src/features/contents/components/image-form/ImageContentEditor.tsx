@@ -1,10 +1,10 @@
-// 图片内容编辑器 — 仅用于编辑已有图片内容；新建流程走 ContentCreateEditor。
+// 圖片內容編輯器 — 僅用於編輯已有圖片內容；新建流程走 ContentCreateEditor。
 //
 // 拆分：
-//   PreviewCanvas   — 1bpp 预览 + 拖拽/缩放交互
-//   ImageDropzone   — 选图(可选)
-//   AudioDropzone   — 选音频 + 删除已有音频
-//   DitherControls  — 缩放 / 抖动算法 / 阈值
+//   PreviewCanvas   — 1bpp 預覽 + 拖拽/縮放交互
+//   ImageDropzone   — 選圖(可選)
+//   AudioDropzone   — 選音頻 + 刪除已有音頻
+//   DitherControls  — 縮放 / 抖動算法 / 閾值
 
 import type { FormEvent } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
@@ -59,15 +59,15 @@ export function ImageContentEditor({ gid, content, onDone }: ImageContentEditorP
             body: { text: form.audio.trimmedTtsText, voice: form.audio.ttsVoice },
           });
         } catch (err) {
-          const title = form.hasContentPatch ? '内容已保存，TTS 生成失败' : 'TTS 生成失败';
-          toast.error(title, `${getApiErrorMessage(err)}。可调整 TTS 文案后重新保存。`);
+          const title = form.hasContentPatch ? '內容已保存，TTS 生成失敗' : 'TTS 生成失敗';
+          toast.error(title, `${getApiErrorMessage(err)}。可調整 TTS 文案後重新保存。`);
           return;
         }
       }
-      toast.success('内容已保存');
+      toast.success('內容已保存');
       onDone();
     } catch (err) {
-      toast.error('保存失败', getApiErrorMessage(err));
+      toast.error('保存失敗', getApiErrorMessage(err));
     }
   }
 
@@ -81,8 +81,8 @@ export function ImageContentEditor({ gid, content, onDone }: ImageContentEditorP
       <PageHeader
         onBack={onDone}
         icon={<ImageIcon size={24} />}
-        title={`编辑第 ${content.seq + 1} 项`}
-        subtitle="改顺序请在组内用拖拽。"
+        title={`編輯第 ${content.seq + 1} 項`}
+        subtitle="改順序請在組內用拖拽。"
       />
 
       <div className="mt-6 fade-up fade-up-1">

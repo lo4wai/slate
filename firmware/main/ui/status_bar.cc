@@ -63,17 +63,17 @@ StatusBar::StatusBar(lv_obj_t* parent) {
     ApplyIconStyle(wifi_label_);
     lv_obj_align(wifi_label_, LV_ALIGN_LEFT_MID, 8, 0);
 
-    // 右边布局: ... [pct text] [battery icon] |
+    // 右邊佈局: ... [pct text] [battery icon] |
     //                                          -8px end
-    // 图标贴右边,百分比在它左边。都用原生 14px 1bpp 字模(font_awesome_14_1),
-    // 不做任何缩放 — 1bpp + 非整数 transform_scale 必出锯齿,18px 子集 + fallback
-    // 14px 又造成充电状态字号跳变,不如统一 14px 视觉一致。
+    // 圖標貼右邊,百分比在它左邊。都用原生 14px 1bpp 字模(font_awesome_14_1),
+    // 不做任何縮放 — 1bpp + 非整數 transform_scale 必出鋸齒,18px 子集 + fallback
+    // 14px 又造成充電狀態字號跳變,不如統一 14px 視覺一致。
     battery_label_ = lv_label_create(root_);
     ApplyIconStyle(battery_label_);
     lv_obj_align(battery_label_, LV_ALIGN_RIGHT_MID, kBatteryIconXOffset, kBatteryIconYOffset);
 
-    // 百分比偏左 — 14px 图标 advance ~14px + 4px 间距 = 18,起算偏移 -26。
-    // 数字用 Zfull 12px(ASCII 子集),比 16px 更紧凑工整。
+    // 百分比偏左 — 14px 圖標 advance ~14px + 4px 間距 = 18,起算偏移 -26。
+    // 數字用 Zfull 12px(ASCII 子集),比 16px 更緊湊工整。
     battery_pct_lbl_ = lv_label_create(root_);
     lv_obj_set_style_text_font(battery_pct_lbl_, &Zfull_12, 0);
     lv_obj_set_style_text_color(battery_pct_lbl_, lv_color_black(), 0);
@@ -84,7 +84,7 @@ StatusBar::StatusBar(lv_obj_t* parent) {
     ApplyIconStyle(title_icon_label_);
     lv_obj_align(title_icon_label_, LV_ALIGN_CENTER, 0, 0);
 
-    // 中央标题：16px Zfull-GB 1bpp。和 BootSplash 同字体,整固件统一中文风格。
+    // 中央標題：16px Zfull-GB 1bpp。和 BootSplash 同字體,整固件統一中文風格。
     title_label_ = lv_label_create(root_);
     lv_obj_set_style_text_font(title_label_, &Zfull_16, 0);
     lv_obj_set_style_text_color(title_label_, lv_color_black(), 0);
@@ -112,16 +112,16 @@ bool StatusBar::SetBattery(int pct, bool charging, bool full) {
         changed = true;
     }
 
-    // 数字策略:
+    // 數字策略:
     //   full       → "100%"(STDBY 拉高,物理可信)
-    //   charging   → ""(ADC 端电压被充电 IC 拉到 4.0-4.2V,SoC 不可信,只剩 BOLT 图标)
+    //   charging   → ""(ADC 端電壓被充電 IC 拉到 4.0-4.2V,SoC 不可信,只剩 BOLT 圖標)
     //   pct >= 0   → "%d%%"
-    //   pct < 0    → "--"(无电池 / 未读到)
+    //   pct < 0    → "--"(無電池 / 未讀到)
     char buf[16] = "";
     if (full) {
         std::snprintf(buf, sizeof(buf), "100%%");
     } else if (charging) {
-        // 留空,只剩图标
+        // 留空,只剩圖標
     } else if (pct < 0) {
         std::snprintf(buf, sizeof(buf), "--");
     } else {

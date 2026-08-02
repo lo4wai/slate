@@ -47,14 +47,14 @@ export function usePcmAudioPlayer({ onError }: UsePcmAudioPlayerOptions) {
       } catch (err) {
         if (seq !== playbackSeqRef.current) return;
         startingRef.current = false;
-        onError('音频播放失败', err instanceof Error ? err.message : undefined);
+        onError('音頻播放失敗', err instanceof Error ? err.message : undefined);
         return;
       }
 
       if (seq !== playbackSeqRef.current) return;
       if (!ctx) {
         startingRef.current = false;
-        onError('音频播放失败', '当前环境不支持 WebAudio。');
+        onError('音頻播放失敗', '當前環境不支持 WebAudio。');
         return;
       }
 
@@ -63,7 +63,7 @@ export function usePcmAudioPlayer({ onError }: UsePcmAudioPlayerOptions) {
         buffer = pcm16LeToAudioBuffer(ctx, data, CONTENT_AUDIO_SAMPLE_RATE);
       } catch (err) {
         startingRef.current = false;
-        onError('音频格式异常', err instanceof Error ? err.message : undefined);
+        onError('音頻格式異常', err instanceof Error ? err.message : undefined);
         return;
       }
 
@@ -87,7 +87,7 @@ export function usePcmAudioPlayer({ onError }: UsePcmAudioPlayerOptions) {
       } catch (err) {
         source.disconnect();
         if (seq === playbackSeqRef.current) resetPlaybackState();
-        onError('音频播放失败', err instanceof Error ? err.message : undefined);
+        onError('音頻播放失敗', err instanceof Error ? err.message : undefined);
         return;
       }
 

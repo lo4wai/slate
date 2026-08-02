@@ -1,6 +1,6 @@
 #pragma once
 
-// Settings 子页面体量小且只被设置菜单创建，集中在一个编译单元降低文件噪音。
+// Settings 子頁面體量小且只被設置菜單創建，集中在一個編譯單元降低文件噪音。
 
 #include <memory>
 #include <string>

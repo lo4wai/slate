@@ -16,9 +16,9 @@ const DYNAMIC_CONTENT_TYPE_META = Object.fromEntries(
 
 export const TYPE_META: Record<AllContentType, TypeMeta> = {
   image: {
-    label: '图片',
-    hint: '上传图片，自动转 1bpp',
-    description: '上传图片并配置抖动 / 阈值；可附音频或 TTS。',
+    label: '圖片',
+    hint: '上傳圖片，自動轉 1bpp',
+    description: '上傳圖片並配置抖動 / 閾值；可附音頻或 TTS。',
     hasConfigurableParams: true,
     supportsAudio: true,
     Icon: ImageIcon,

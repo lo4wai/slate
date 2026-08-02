@@ -190,7 +190,7 @@ void SyncService::Loop() {
         if (!running_.load(std::memory_order_acquire))
             break;
 
-        // 标记突发进行中：SleepManager 据此阻止 idle 睡眠打断正在进行的下载。
+        // 標記突發進行中：SleepManager 據此阻止 idle 睡眠打斷正在進行的下載。
         in_flight_.store(true, std::memory_order_release);
         if (bits & BIT_CYCLE_NEXT) {
             DoCycle("next");
@@ -203,8 +203,8 @@ void SyncService::Loop() {
         }
         in_flight_.store(false, std::memory_order_release);
 
-        // 一次 sync 突发(poll/cycle → manifest → 各帧)结束,释放持久连接回收 mbedTLS 内存。
-        // 连接只在单次突发内复用,突发之间(轮询间隔以分钟计)不保活,避免常驻占内存。
+        // 一次 sync 突發(poll/cycle → manifest → 各幀)結束,釋放持久連接回收 mbedTLS 內存。
+        // 連接只在單次突發內複用,突發之間(輪詢間隔以分鐘計)不保活,避免常駐佔內存。
         api::ResetConnection();
     }
 }

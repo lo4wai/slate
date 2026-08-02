@@ -36,7 +36,7 @@ export function ImageFormBody({
   editingContentId = null,
   audioStatus,
   audioError,
-  frameNamePlaceholder = '如：挖掘机',
+  frameNamePlaceholder = '如：挖掘機',
   frameNameAutoFocus,
   gridClassName,
   beforeFields,
@@ -48,7 +48,7 @@ export function ImageFormBody({
     >
       <div className="order-2 min-w-0 lg:order-1">
         <p className="font-mono text-[10px] leading-5 text-stone uppercase tracking-[0.18em] ml-0.5 mb-2">
-          预览 · 1bpp · {FRAME_WIDTH}×{FRAME_HEIGHT}
+          預覽 · 1bpp · {FRAME_WIDTH}×{FRAME_HEIGHT}
         </p>
         <PreviewCanvas
           canvasRef={form.image.previewRef}
@@ -67,7 +67,7 @@ export function ImageFormBody({
       <div className="order-1 min-w-0 lg:order-2 lg:mt-7 space-y-6">
         {beforeFields}
 
-        <FormSection label="帧名称（选填，最多 64 字）">
+        <FormSection label="幀名稱（選填，最多 64 字）">
           <Input
             type="text"
             maxLength={64}
@@ -78,7 +78,7 @@ export function ImageFormBody({
           />
         </FormSection>
 
-        <FormSection label="类型参数" hint={isEdit ? '不传图片则保留原图。' : undefined}>
+        <FormSection label="類型參數" hint={isEdit ? '不傳圖片則保留原圖。' : undefined}>
           <div className="space-y-4">
             <ImageDropzone isEdit={isEdit} imageFile={form.image.file} onPick={form.image.onPick} />
             <DitherControls
@@ -95,7 +95,7 @@ export function ImageFormBody({
           </div>
         </FormSection>
 
-        <FormSection label="音频">
+        <FormSection label="音頻">
           <ImageAudioBlock
             gid={gid}
             mode={form.audio.mode}

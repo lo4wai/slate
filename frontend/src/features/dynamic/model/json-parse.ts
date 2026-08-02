@@ -19,7 +19,7 @@ export function parseJsonRecord(
   const parsed = parseJson(text);
   if (!parsed.ok) return parsed;
   if (!parsed.data || typeof parsed.data !== 'object' || Array.isArray(parsed.data)) {
-    return { ok: false, error: '必须是 JSON object' };
+    return { ok: false, error: '必須是 JSON object' };
   }
   return { ok: true, data: parsed.data as Record<string, unknown> };
 }
@@ -30,7 +30,7 @@ export function parseJson(
   try {
     return { ok: true, data: JSON.parse(text) };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : 'JSON 解析失败' };
+    return { ok: false, error: err instanceof Error ? err.message : 'JSON 解析失敗' };
   }
 }
 

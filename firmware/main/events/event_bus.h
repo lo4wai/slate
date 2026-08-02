@@ -1,14 +1,14 @@
 #pragma once
 
-// 全局 UI 事件总线。所有事件源（按键、充电状态、WiFi、SyncService、分钟边界 ticker）
-// Post 进来，唯一一个 ui_loop task 用 Wait 串行消费。
+// 全局 UI 事件總線。所有事件源（按鍵、充電狀態、WiFi、SyncService、分鐘邊界 ticker）
+// Post 進來，唯一一個 ui_loop task 用 Wait 串行消費。
 //
-// 设计决策：
-//   - FreeRTOS xQueue 长度 64，元素是 trivially-copyable 的 UiEvent。
-//   - 不在 UiEvent 里塞 std::string / std::vector：Queue 是 byte-copy，
-//     带 heap 句柄的对象进 queue = use-after-free。group.gid 是定长 char[32]。
-//   - 满了 timeout 后丢新事件（不丢老的），打 ESP_LOGW，让开发者发现 ui_loop 卡住。
-//   - 默认事件允许短暂等待；同步进度/轮询状态类事件默认 no-wait，避免后台任务被 UI 队列反压卡住。
+// 設計決策：
+//   - FreeRTOS xQueue 長度 64，元素是 trivially-copyable 的 UiEvent。
+//   - 不在 UiEvent 裏塞 std::string / std::vector：Queue 是 byte-copy，
+//     帶 heap 句柄的對象進 queue = use-after-free。group.gid 是定長 char[32]。
+//   - 滿了 timeout 後丟新事件（不丟老的），打 ESP_LOGW，讓開發者發現 ui_loop 卡住。
+//   - 默認事件允許短暫等待；同步進度/輪詢狀態類事件默認 no-wait，避免後台任務被 UI 隊列反壓卡住。
 
 #include <freertos/FreeRTOS.h>
 

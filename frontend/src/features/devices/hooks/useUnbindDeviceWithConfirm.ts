@@ -10,16 +10,16 @@ export function useUnbindDeviceWithConfirm(device: DeviceSummaryT, onSuccess?: (
     isPending,
     getConfirmOptions: useCallback(
       () => ({
-        title: '解绑这台设备？',
-        description: `${device.name ?? device.mac} 将从你的账号移除。素材保留，设备屏会切回配对码状态。`,
+        title: '解綁這台設備？',
+        description: `${device.name ?? device.mac} 將從你的賬號移除。素材保留，設備屏會切回配對碼狀態。`,
         destructive: true,
-        confirmText: '解绑',
+        confirmText: '解綁',
       }),
       [device.mac, device.name]
     ),
     run: useCallback((deviceId, callbacks) => mutate(deviceId, callbacks), [mutate]),
-    successToast: { message: '已解绑', hint: '设备屏会显示新配对码。' },
-    errorToast: '解绑失败',
+    successToast: { message: '已解綁', hint: '設備屏會顯示新配對碼。' },
+    errorToast: '解綁失敗',
     onSuccess: useCallback(() => onSuccess?.(), [onSuccess]),
   });
   const unbindWithConfirm = useCallback(() => {

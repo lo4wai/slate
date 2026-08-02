@@ -2,48 +2,96 @@
 
 本文件给本地 AI 代理使用，说明 Slate 仓库内必须遵守的协作和发布规则。面向人的贡献说明见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## 基本规则
+## 仓库结构
 
-- 默认在 `master` 上开发，提交风格遵循 Conventional Commits。
-- 不要回滚用户已有改动；如遇到无关的脏工作区，忽略即可。
-- 修改前先阅读相关模块 README：后端看 `backend/README.md`，前端看 `frontend/README.md`，共享 schema 看 `shared/README.md`，固件看 `firmware/README.md`。
-- 前端 UI 改动必须遵守 `frontend/README.md` 的 Mono Press 设计系统。
-- 固件改动影响 partition、NVS、同步协议或 OTA 路径时，必须在最终说明里明确风险和验证结果。
+Bun workspace monorepo，根 `package.json` 无 `name`（workspace root）。四部分：
 
-## 提交规则
+| 目录 | 运行时 | 说明 |
+| --- | --- | --- |
+| `backend/` | Bun + NestJS 11 + Fastify | API、Prisma schema、动态帧渲染、音频转码 |
+| `frontend/` | React 19 + Vite 8 | Web 管理端 |
+| `shared/` | TypeScript 源码 | zod schema、dither、图像预处理，**不需要构建** |
+| `firmware/` | ESP-IDF 5.5.x | **独立工程，不属于 Bun workspace** |
 
-- 提交信息遵循仓库历史：`<type>(<scope>): <中文摘要>`，body 用 `- ` 条目说明具体改动。
-- 需要提交 body 时，使用单个 `-m` 传入完整提交信息，例如 `git commit -m $'subject\n\n- item'`。
-- 不要在提交信息里加入任何 AI 署名、生成标识、协作者 trailer 或工具标记。
+## 开发前必读
 
-## 常用校验
+修改前先读对应模块 README：`backend/README.md`、`frontend/README.md`、`shared/README.md`、`firmware/README.md`。各 README 包含目录结构、数据流和环境变量等关键信息。
 
-发布前或大改后优先执行：
+## 本地开发命令
 
 ```bash
-bun run format:check
-bun run lint
-bun run typecheck
-bun run --cwd backend test
-bun run --cwd frontend build
+bun install                                # 一次性，安装所有 workspace 依赖
+
+# 启动 MySQL（首次）
+docker run -d --name slate-mysql -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=slate
+
+# 配置后端环境
+cp backend/.env.example backend/.env
+
+# Prisma 生成 + 迁移（首次或 schema 变更后）
+bun run --cwd backend prisma:generate       # prisma generate
+bun run --cwd backend prisma:migrate        # prisma migrate dev（创建新 migration）
+
+# 开发服务器
+bun run dev:backend                         # :3001，含 prisma generate + migrate deploy + watch
+bun run dev:frontend                        # :5173，Vite proxy /api 到 :3001
 ```
 
-固件改动还需要 ESP-IDF 5.5.x 构建：
+关键约定：
+- 后端读取 `backend/.env`。根目录 `.env` 仅 Docker Compose 使用，开发模式不会读取。
+- `shared` 不构建：前后端都直接 import `shared/src`，运行期无需 `dist`。前端通过 Vite alias 消费，后端通过 workspace 依赖消费。
+- 首次访问 `http://localhost:5173/register` 注册账号。
 
+## 校验命令（提交前必跑）
+
+顺序：format -> lint -> typecheck -> test -> frontend build
+
+```bash
+bun run format:check                        # Prettier，TS/TSX/JSON
+bun run lint                                # ESLint，frontend + backend，零 warning
+bun run typecheck                           # tsc --noEmit，frontend + backend
+bun run --cwd backend test                  # Bun test
+bun run --cwd frontend build                # tsc && vite build
+```
+
+固件改动还需：
 ```bash
 source $IDF_PATH/export.sh
 idf.py -C firmware build
 ```
 
+## 提交规则
+
+- 默认在 `master` 上开发。
+- Conventional Commits，中文摘要：`<type>(<scope>): <中文摘要>`。
+- Body 用 `- ` 条目说明具体改动。
+- 需要 body 时，单个 `-m` 传入：`git commit -m $'subject\n\n- item'`。
+- 不要加入 AI 署名、生成标识、协作者 trailer 或工具标记。
+- 不要回滚用户已有改动；遇到无关脏工作区，忽略即可。
+
+## 前端 UI 约定
+
+- 颜色、圆角、字体只走 `frontend/src/styles/global.css`（Mono Press 设计系统）。
+- 目录约定：`features/*` 放业务域组件/hooks/queries；`components/ui` 只放可复用 UI 组件；`hooks` 只放跨 feature hooks。
+- 路由表在 `src/app/App.tsx`，路径常量在 `src/app/routes.ts`。
+
+## 后端约定
+
+- 所有 API 端点都在 `/api/v1` 下，唯二例外：`/healthz`（无前缀）。
+- 设备鉴权：`Authorization: Bearer <device_secret>`（64 hex）。Web 管理：JWT。
+- 新 migration 用 `bun run --cwd backend prisma:migrate`（即 `prisma migrate dev`）。
+- 后端 Prisma 使用 MariaDB adapter 直连 MySQL 8。本地无 TLS 时通常需设 `DB_ALLOW_PUBLIC_KEY_RETRIEVAL=true`。
+
+## 固件改动注意事项
+
+- 影响 partition、NVS schema、同步协议或 OTA 路径时，在最终说明里明确风险和验证结果。
+- `firmware/sdkconfig.defaults` 已固化 ESP32-S3 target、Flash/PSRAM、分区表等配置，无需 `idf.py set-target`。
+
 ## 发布规则
 
-Slate 使用单一产品版本号。一个 `vX.Y.Z` tag 同时发布：
-
-- GHCR Docker 镜像：backend + frontend dist
-- ESP32-S3 固件：完整烧录包和 OTA 包
-- GitHub Release：release notes、固件附件、校验和、部署用 `compose.yml` / env 示例
-
-不要为 backend 和 firmware 分别创建 release。
+Slate 使用单一产品版本号。一个 `vX.Y.Z` tag 同时发布 Docker 镜像和固件产物，不要拆成两个 release。
 
 ### 发版前必须同步版本号
 
@@ -56,44 +104,20 @@ Slate 使用单一产品版本号。一个 `vX.Y.Z` tag 同时发布：
 - `bun.lock` 中 workspace package 的版本记录
 - `firmware/sdkconfig.defaults` 中的 `CONFIG_APP_PROJECT_VER`
 
-例如发布 `v0.2.0` 时，上述版本都必须是 `0.2.0`。
-
 更新 package 版本后运行一次 `bun install`，让 `bun.lock` 同步 workspace 版本。不要只改 `package.json`。
 
 ### 只能使用 annotated tag
 
-Release notes 来自 tag body。不要创建 lightweight tag，不要手动编造 GitHub Release 内容。
-
-推荐命令：
+Release notes 来自 tag body。不要创建 lightweight tag。
 
 ```bash
 git tag -a v0.2.0
 git push origin v0.2.0
 ```
 
-tag message 示例：
-
-```text
-Slate v0.2.0
-
-- 后端 / Web：新增 ...
-- 固件：修复 ...
-- 兼容性：推荐固件 v0.2.0
-```
-
 ### CI 发布流程
 
-推送 `vX.Y.Z` tag 后，`.github/workflows/release.yml` 会自动：
-
-1. 校验 tag 是 annotated tag，且 tag body 非空
-2. 校验各模块版本号与 tag 一致
-3. 跑格式、lint、typecheck、后端测试、前端构建
-4. 构建并推送 Docker 镜像 tag：`vX.Y.Z`、`X.Y`、`latest`
-5. 构建固件并生成带版本号的 `.bin`
-6. 创建或更新 GitHub Release
-7. 上传固件 `.bin`、sha256、部署用 `compose.yml` / env 示例到 Release assets
-
-`docker.yml` 和 `firmware.yml` 是 `master` 的滚动构建，不代表稳定版本。正式版本只看 GitHub Releases 和 `vX.Y.Z` tag。
+推送 `vX.Y.Z` 后，`.github/workflows/release.yml` 自动完成：校验 annotated tag -> 版本号一致性 -> format/lint/typecheck/test/build -> Docker 镜像推送 -> 固件构建 -> GitHub Release 创建。
 
 ### 禁止事项
 

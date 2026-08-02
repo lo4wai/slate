@@ -1,12 +1,12 @@
-// 全局 toast — Radix Toast 风格化。两种语调：
-//   info（默认）：奶米底 + 砖红边
-//   error：     砖红底 + 白字
+// 全局 toast — Radix Toast 風格化。兩種語調：
+//   info（默認）：奶米底 + 磚紅邊
+//   error：     磚紅底 + 白字
 //
 // 用法：
 //   const toast = useToast();
-//   toast.success('已添加'); toast.error('MAC 已被他人占用');
+//   toast.success('已添加'); toast.error('MAC 已被他人佔用');
 //
-// 在 app 根挂 <ToastProvider /> 一次。
+// 在 app 根掛 <ToastProvider /> 一次。
 
 import { memo, useCallback, useMemo, useState, type ReactNode } from 'react';
 import * as RT from '@radix-ui/react-toast';

@@ -19,7 +19,7 @@ export function DynamicFramePreview({
       {showPlaceholder && !pending && (
         <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
           <span className="font-serif italic text-[13px] text-stone-light">
-            {hasConfig ? '修改参数后自动更新' : '选择类型后开始配置'}
+            {hasConfig ? '修改參數後自動更新' : '選擇類型後開始配置'}
           </span>
         </div>
       )}

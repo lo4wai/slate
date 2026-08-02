@@ -1,25 +1,25 @@
 #pragma once
 
-// 系统级电源管理,管三条 audio 子系统相关 pin + VBAT 软锁存:
-//   - VBAT 软锁存(GPIO17 拉低=关机的唯一手段)
-//   - AVDD_3V3 / Audio rail(GPIO42,关掉=I²C 死、ES8311/PA/MIC 失能)
-//   - PA CTRL(GPIO46,PA 数字使能,必须先于 audio rail 通电时被驱动 LOW)
+// 系統級電源管理,管三條 audio 子系統相關 pin + VBAT 軟鎖存:
+//   - VBAT 軟鎖存(GPIO17 拉低=關機的唯一手段)
+//   - AVDD_3V3 / Audio rail(GPIO42,關掉=I²C 死、ES8311/PA/MIC 失能)
+//   - PA CTRL(GPIO46,PA 數字使能,必須先於 audio rail 通電時被驅動 LOW)
 // EPD_PWR(GPIO6) 由 EpdSsd1683 自管。
 //
-// 为什么 PA pin 也归这里管:audio rail 一通电 PA U5 就吃电,如果此时 PA CTRL
-// 浮空可能被读为 HIGH → PA 放大 ES8311 默认 DC bias → 喇叭"啵"。所以 PA pin
-// 必须跟 audio rail 在同一构造里 init,确保 PowerAudioOn 时 CTRL 已稳是 LOW。
-// 后续由 AudioPlayer::EnsureCodecOpen 在 100 ms DAC 稳定窗后再拉高出声。
+// 為什麼 PA pin 也歸這裏管:audio rail 一通電 PA U5 就吃電,如果此時 PA CTRL
+// 浮空可能被讀為 HIGH → PA 放大 ES8311 默認 DC bias → 喇叭"啵"。所以 PA pin
+// 必須跟 audio rail 在同一構造裏 init,確保 PowerAudioOn 時 CTRL 已穩是 LOW。
+// 後續由 AudioPlayer::EnsureCodecOpen 在 100 ms DAC 穩定窗後再拉高出聲。
 //
-// LED(GPIO3):阶段 1 起不再走充电状态闪烁(屏保取消 → 改由状态栏指示)。
-// 这里只在 InitLed() 把 GPIO3 配成 OUTPUT 并熄灭,之后不再驱动。
+// LED(GPIO3):階段 1 起不再走充電狀態閃爍(屏保取消 → 改由狀態欄指示)。
+// 這裏只在 InitLed() 把 GPIO3 配成 OUTPUT 並熄滅,之後不再驅動。
 
 class BoardPowerBsp {
    public:
     BoardPowerBsp(int audioPowerPin, int audioAmpPin, int vbatPowerPin);
     ~BoardPowerBsp() = default;
 
-    // 一次性把 LED 配成 OUTPUT 并熄灭。可在 Init 序列任意点调，幂等。
+    // 一次性把 LED 配成 OUTPUT 並熄滅。可在 Init 序列任意點調，冪等。
     void InitLed();
 
     void PowerAudioOn();
@@ -29,6 +29,6 @@ class BoardPowerBsp {
 
    private:
     const int audioPowerPin_;
-    const int audioAmpPin_;  // PA CTRL,构造时锁定 LOW
+    const int audioAmpPin_;  // PA CTRL,構造時鎖定 LOW
     const int vbatPowerPin_;
 };

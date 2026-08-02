@@ -59,7 +59,7 @@ bool BatteryAdc::Read(uint16_t* voltage_mv, uint8_t* percent) {
             continue;
         if (adc_cali_raw_to_voltage(cali_handle_, raw, &mv) != ESP_OK)
             continue;
-        sum += mv * 2;  // 板上 1:2 分压,×2 还原电池电压
+        sum += mv * 2;  // 板上 1:2 分壓,×2 還原電池電壓
         n++;
         if (i != 9)
             esp_rom_delay_us(100);
@@ -70,7 +70,7 @@ bool BatteryAdc::Read(uint16_t* voltage_mv, uint8_t* percent) {
     }
 
     const int avg = sum / n;
-    // 二阶多项式拟合:4200mV→100,3800mV→67,3300mV→0(单节锂电放电曲线)
+    // 二階多項式擬合:4200mV→100,3800mV→67,3300mV→0(單節鋰電放電曲線)
     int p = (-1 * avg * avg + 9016 * avg - 19189000) / 10000;
     p     = p > 100 ? 100 : (p < 0 ? 0 : p);
     if (voltage_mv)

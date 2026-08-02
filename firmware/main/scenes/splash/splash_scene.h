@@ -1,13 +1,13 @@
 #pragma once
 
-// 启动占位屏 + 配对/等待显示。事件驱动状态机:
-//   - cred::Load 失败 → kProvisioning(显示 AP SSID)
-//   - kBootStage event 切到对应阶段(连 Wi-Fi / 对时 / 注册中 / 配对码 ...)
-//   - kBound → kAwaitingGroup;kUnbound → kAwaitingPair(载新码)
-//   - kSyncProgress → 帧级下载进度;kSyncFinished{ok=false} → 网络异常
+// 啓動佔位屏 + 配對/等待顯示。事件驅動狀態機:
+//   - cred::Load 失敗 → kProvisioning(顯示 AP SSID)
+//   - kBootStage event 切到對應階段(連 Wi-Fi / 對時 / 註冊中 / 配對碼 ...)
+//   - kBound → kAwaitingGroup;kUnbound → kAwaitingPair(載新碼)
+//   - kSyncProgress → 幀級下載進度;kSyncFinished{ok=false} → 網絡異常
 //   - kCachedGroupReady / kSyncedGroupReady → RequestReplace 切 FrameScene
 //
-// 配对码 6 字符用 montserrat_48 大字号居中显示,确保用户对屏抄码一眼能看清。
+// 配對碼 6 字符用 montserrat_48 大字號居中顯示,確保用户對屏抄碼一眼能看清。
 
 #include <freertos/FreeRTOS.h>
 
@@ -55,11 +55,11 @@ class SplashScene : public Scene {
 
     lv_obj_t* root_       = nullptr;
     lv_obj_t* text_label_ = nullptr;  // 主文案(中文,Zfull)
-    lv_obj_t* code_label_ = nullptr;  // 配对码大字(montserrat_48,仅 kAwaitingPair 显示)
-    lv_obj_t* hint_label_ = nullptr;  // 底部应急逃生 hint
+    lv_obj_t* code_label_ = nullptr;  // 配對碼大字(montserrat_48,僅 kAwaitingPair 顯示)
+    lv_obj_t* hint_label_ = nullptr;  // 底部應急逃生 hint
 
-    // 进度节流:启动期下载几十帧时,SyncProgress 高频触发,需要节流避免
-    // EPD 累计 8 次 partial 自动升 full 闪屏。
+    // 進度節流:啓動期下載幾十幀時,SyncProgress 高頻觸發,需要節流避免
+    // EPD 累計 8 次 partial 自動升 full 閃屏。
     uint8_t    last_progress_current_ = 0xFF;
     TickType_t last_progress_tick_    = 0;
 };

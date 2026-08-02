@@ -1,4 +1,4 @@
-// Mono Press 双线分隔符 — 1px + 3px 间隔 + 2px。
+// Mono Press 雙線分隔符 — 1px + 3px 間隔 + 2px。
 
 import { cn } from '@/lib/cn';
 

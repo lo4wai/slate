@@ -17,18 +17,18 @@ export function DeviceStatusGrid({
 
   return (
     <section>
-      <h3 className="font-sans text-[12px] uppercase tracking-wide text-stone mb-2">状态</h3>
+      <h3 className="font-sans text-[12px] uppercase tracking-wide text-stone mb-2">狀態</h3>
       <div className="grid grid-cols-2 gap-3">
         <DeviceMetaCard
           icon={<BatteryLevelIcon level={battery} size={16} />}
-          label="电量"
+          label="電量"
           value={online && battery != null ? `${battery}%` : '—'}
           warn={online && battery != null && battery < 20}
           stale={!online}
         />
         <DeviceMetaCard
           icon={<Wifi size={16} />}
-          label="信号"
+          label="信號"
           value={online && device.rssi_dbm != null ? `${device.rssi_dbm} dBm` : '—'}
           hint={online ? rssiLabel(device.rssi_dbm) : undefined}
           stale={!online}

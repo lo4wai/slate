@@ -23,8 +23,8 @@
 namespace {
 constexpr char kTag[] = "sleep";
 
-// 进 deep sleep 前等 EPD 刷新结束的最大时长。低温或 full cleanup 可接近 5s；
-// 超时过短会在白相阶段切 EPD 电源，留下整屏白。
+// 進 deep sleep 前等 EPD 刷新結束的最大時長。低温或 full cleanup 可接近 5s；
+// 超時過短會在白相階段切 EPD 電源，留下整屏白。
 constexpr int kEpdFlushTimeoutMs = 8000;
 
 constexpr int kMaxBatteryPct = 100;
@@ -38,9 +38,9 @@ int ClampBatteryPct(int pct) {
     return pct;
 }
 
-// 把单个 GPIO 配成 RTC 数字输入 + 上拉 + hold,适合做 EXT1 ANY_LOW 唤醒源。
-// 必须用 rtc_gpio_set_direction —— 仅 rtc_gpio_init 不改 direction,GPIO 仍可能
-// 处于 ADC/iot_button 之前留下的非数字输入态,EXT1 感知不到电平。
+// 把單個 GPIO 配成 RTC 數字輸入 + 上拉 + hold,適合做 EXT1 ANY_LOW 喚醒源。
+// 必須用 rtc_gpio_set_direction —— 僅 rtc_gpio_init 不改 direction,GPIO 仍可能
+// 處於 ADC/iot_button 之前留下的非數字輸入態,EXT1 感知不到電平。
 void PrepareWakeupGpio(gpio_num_t pin) {
     rtc_gpio_init(pin);
     rtc_gpio_set_direction(pin, RTC_GPIO_MODE_INPUT_ONLY);
@@ -49,12 +49,12 @@ void PrepareWakeupGpio(gpio_num_t pin) {
     rtc_gpio_hold_en(pin);
 }
 
-// VBAT_PWR (GPIO17) 是软锁存,拉低=整机断电(BOOT 唤醒无效=变砖)。
-// ESP_SLEEP_GPIO_RESET_WORKAROUND 开了后,普通 GPIO 在 deep sleep 期间会被
-// 强制复位。必须切到 RTC GPIO 域、显式 rtc_gpio_hold_en 才能真正 hold 高电平。
+// VBAT_PWR (GPIO17) 是軟鎖存,拉低=整機斷電(BOOT 喚醒無效=變磚)。
+// ESP_SLEEP_GPIO_RESET_WORKAROUND 開了後,普通 GPIO 在 deep sleep 期間會被
+// 強制復位。必須切到 RTC GPIO 域、顯式 rtc_gpio_hold_en 才能真正 hold 高電平。
 void LockVbatPowerHigh() {
     auto pin = static_cast<gpio_num_t>(VBAT_PWR_PIN);
-    gpio_hold_dis(pin);  // 先释放普通 GPIO 域 hold,RTC GPIO 才能接管
+    gpio_hold_dis(pin);  // 先釋放普通 GPIO 域 hold,RTC GPIO 才能接管
     rtc_gpio_init(pin);
     rtc_gpio_set_direction(pin, RTC_GPIO_MODE_OUTPUT_ONLY);
     rtc_gpio_pulldown_dis(pin);
@@ -124,7 +124,7 @@ void SleepManager::OnEvent(const UiEvent& e) {
             unbound_state_.since_ms = 0;
         } break;
         case UiEventKind::kUnbound:
-            // 仅首次进入 unbound 时记录起始 ts,重复事件不重置(否则 2h 兜底永不触发)。
+            // 僅首次進入 unbound 時記錄起始 ts,重複事件不重置(否則 2h 兜底永不觸發)。
             if (MarkUnboundIfNeeded(time_utils::NowMs())) {
                 ESP_LOGW(kTag, "unbound grace hours=%lld", (long long)(kUnboundGraceMs / (60 * 60 * 1000)));
             }
@@ -167,7 +167,7 @@ bool SleepManager::BlocksSleep() const {
 void SleepManager::Tick(int64_t now_ms) {
     if (!enabled_.load())
         return;
-    // 充电 / unbound 宽限是合法的「先别睡」，不计入看门狗（它们不是卡死），重置计时。
+    // 充電 / unbound 寬限是合法的「先別睡」，不計入看門狗（它們不是卡死），重置計時。
     if (paused_.load()) {
         blocked_since_ms_.store(0);
         return;
@@ -186,9 +186,9 @@ void SleepManager::Tick(int64_t now_ms) {
             ESP_LOGI(kTag, "sleep blocked begin");
         }
         if (now_ms - since < kMaxBlockedMs)
-            return;  // 给语音/同步收尾时间
-        // 看门狗超时：强制走一次带守卫的深睡尝试。TryEnterDeepSleep → WaitForEpdAndShutdown
-        // 会停掉语音(SuspendForSleep)与同步(SyncService::Stop)，打断卡死的 blocker。
+            return;  // 給語音/同步收尾時間
+        // 看門狗超時：強制走一次帶守衞的深睡嘗試。TryEnterDeepSleep → WaitForEpdAndShutdown
+        // 會停掉語音(SuspendForSleep)與同步(SyncService::Stop)，打斷卡死的 blocker。
         ESP_LOGW(kTag, "sleep blocked timeout elapsed_ms=%lld limit_ms=%lld action=force_sleep",
                  (long long)(now_ms - since), (long long)kMaxBlockedMs);
         forced = true;
@@ -207,7 +207,7 @@ void SleepManager::Tick(int64_t now_ms) {
         // TryEnterDeepSleep can be refused by charge/unbound/disabled guards. Treat
         // that refusal as activity so Tick() does not spin the full sleep path every second.
         last_active_ms_.store(now_ms);
-        // 强制尝试被拒：重置看门狗计时，给 blocker 再一个完整窗口，避免每秒重复强制。
+        // 強制嘗試被拒：重置看門狗計時，給 blocker 再一個完整窗口，避免每秒重複強制。
         if (forced)
             blocked_since_ms_.store(0);
     }
@@ -223,8 +223,8 @@ SleepManager::SleepDecision SleepManager::TryEnterDeepSleep() {
     if (InUnboundGrace(now_ms)) {
         return {SleepOutcome::kUnboundGrace, next_sec};
     }
-    // paused_ 由 kChargeChanged 事件驱动,timer wake 路径下可能尚未消化此事件。
-    // 同时现场查询硬件确保新插入的电源也能即时拦截。
+    // paused_ 由 kChargeChanged 事件驅動,timer wake 路徑下可能尚未消化此事件。
+    // 同時現場查詢硬件確保新插入的電源也能即時攔截。
     const bool power_present = Board::Get().charge()->Get().power_present;
     if (power_present || paused_.load()) {
         if (power_present)
@@ -233,11 +233,11 @@ SleepManager::SleepDecision SleepManager::TryEnterDeepSleep() {
     }
     ESP_LOGI(kTag, "deep sleep prepare");
 
-    // 1) 停后台 task,避免在 rail 关闭后还有 I²C / 网络写操作，并等待已有 EPD 刷新完成。
+    // 1) 停後台 task,避免在 rail 關閉後還有 I²C / 網絡寫操作，並等待已有 EPD 刷新完成。
     const bool epd_ready = power_shutdown::WaitForEpdAndShutdown(kEpdFlushTimeoutMs);
 
-    // 2) 不主动制造一轮全刷。墨水屏内容本来可保留；
-    //    静态帧 idle 进睡眠时如果这里再全刷一次，会白白耗电。
+    // 2) 不主動製造一輪全刷。墨水屏內容本來可保留；
+    //    靜態幀 idle 進睡眠時如果這裏再全刷一次，會白白耗電。
     if (auto* epd = Board::Get().epd()) {
         if (!epd_ready) {
             ESP_LOGW(kTag, "status snapshot skipped reason=epd_pending elapsed_ms=%d", kEpdFlushTimeoutMs);
@@ -247,39 +247,39 @@ SleepManager::SleepDecision SleepManager::TryEnterDeepSleep() {
         }
     }
 
-    // 3) 关 EPD rail (GPIO6)。墨水屏像素双稳态保留,controller 寄存器/电荷泵失效,
-    //    醒来 EpdInit 重做时序就好。
+    // 3) 關 EPD rail (GPIO6)。墨水屏像素雙穩態保留,controller 寄存器/電荷泵失效,
+    //    醒來 EpdInit 重做時序就好。
     GpioWriteHold(EPD_PWR_PIN, 0);
 
-    // 4) 关 audio rail (GPIO42)。**必须在 I²C 操作完成之后**:这条 rail 一关,
-    //    R45/R46 上拉死,后续任何 I²C 都失败。NVS / 其他后台任务清理已在前面完成。
+    // 4) 關 audio rail (GPIO42)。**必須在 I²C 操作完成之後**:這條 rail 一關,
+    //    R45/R46 上拉死,後續任何 I²C 都失敗。NVS / 其他後台任務清理已在前面完成。
     GpioWriteHold(AUDIO_PWR_PIN, 0);
 
-    // 5) **关键防变砖**:VBAT_PWR (GPIO17) 必须保持高,否则整机断电,BOOT 也唤不醒。
-    //    用 RTC GPIO API 切到 RTC 域显式 hold,绕开 GPIO_RESET_WORKAROUND。
+    // 5) **關鍵防變磚**:VBAT_PWR (GPIO17) 必須保持高,否則整機斷電,BOOT 也喚不醒。
+    //    用 RTC GPIO API 切到 RTC 域顯式 hold,繞開 GPIO_RESET_WORKAROUND。
     LockVbatPowerHigh();
 
-    // 6) 配置 EXT1 唤醒源 GPIO,iot_button 之前占用过 GPIO0/18 的 IO MUX,
-    //    必须 rtc_gpio_set_direction(INPUT_ONLY) 复位回数字输入,EXT1 才能感知。
+    // 6) 配置 EXT1 喚醒源 GPIO,iot_button 之前佔用過 GPIO0/18 的 IO MUX,
+    //    必須 rtc_gpio_set_direction(INPUT_ONLY) 復位回數字輸入,EXT1 才能感知。
     PrepareWakeupGpio(static_cast<gpio_num_t>(BOOT_BUTTON_GPIO));    // ENTER
-    PrepareWakeupGpio(static_cast<gpio_num_t>(DOWN_BUTTON_GPIO));    // 下键(GPIO 39 UP 不是 RTC IO 用不了)
-    PrepareWakeupGpio(static_cast<gpio_num_t>(CHARGE_DETECT_GPIO));  // 插 USB 自动唤醒
+    PrepareWakeupGpio(static_cast<gpio_num_t>(DOWN_BUTTON_GPIO));    // 下鍵(GPIO 39 UP 不是 RTC IO 用不了)
+    PrepareWakeupGpio(static_cast<gpio_num_t>(CHARGE_DETECT_GPIO));  // 插 USB 自動喚醒
 
     constexpr uint64_t kWakeupMask =
         (1ULL << BOOT_BUTTON_GPIO) | (1ULL << DOWN_BUTTON_GPIO) | (1ULL << CHARGE_DETECT_GPIO);
     esp_sleep_enable_ext1_wakeup(kWakeupMask, ESP_EXT1_WAKEUP_ANY_LOW);
 
-    // 7) RTC timer 只服务当前动态帧。静态帧不会自己变更，靠 timer wake
-    //    周期性联网只会空耗电；远端静态内容变化等用户按键/插电唤醒后再同步。
+    // 7) RTC timer 只服務當前動態幀。靜態幀不會自己變更，靠 timer wake
+    //    週期性聯網只會空耗電；遠端靜態內容變化等用户按鍵/插電喚醒後再同步。
     if (next_sec > 0) {
         esp_sleep_enable_timer_wakeup(static_cast<uint64_t>(next_sec) * 1'000'000ULL);
         ESP_LOGI(kTag, "deep sleep start wake_mask=0x%llx timer_sec=%u", (unsigned long long)kWakeupMask,
                  static_cast<unsigned>(next_sec));
     } else {
-        // 静态帧不配定时唤醒。但自动 light sleep(CONFIG_PM_ENABLE/tickless idle)会把
-        // RTC timer 唤醒源留在 esp_sleep 配置里,不显式清掉的话 esp_deep_sleep_start 会继承
-        // 这个「幻影 timer」,导致 timer_sec=0 的深睡约 1s 后就被 wake=rtc_timer 唤醒、
-        // 每分钟空醒重启(实测)。必须显式禁用 timer 唤醒源,确保静态帧只靠 EXT1/插电醒。
+        // 靜態幀不配定時喚醒。但自動 light sleep(CONFIG_PM_ENABLE/tickless idle)會把
+        // RTC timer 喚醒源留在 esp_sleep 配置裏,不顯式清掉的話 esp_deep_sleep_start 會繼承
+        // 這個「幻影 timer」,導致 timer_sec=0 的深睡約 1s 後就被 wake=rtc_timer 喚醒、
+        // 每分鐘空醒重啓(實測)。必須顯式禁用 timer 喚醒源,確保靜態幀只靠 EXT1/插電醒。
         esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
         ESP_LOGI(kTag, "deep sleep start wake_mask=0x%llx timer_sec=0", (unsigned long long)kWakeupMask);
     }

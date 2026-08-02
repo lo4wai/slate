@@ -25,8 +25,8 @@ void EpdSsd1683::EpdInit() {
 }
 
 void EpdSsd1683::ApplyTemperatureBoost() {
-    // 0x40 = Get Temp,ReadBusy 后 EPD 把片内温度寄存器值放到 DI 上,SPI 反向读 1B。
-    // 这次切换 SPI 模式约 5~10 ms，所以 60 s 内复用上次结果（屏温变化很慢）。
+    // 0x40 = Get Temp,ReadBusy 後 EPD 把片內温度寄存器值放到 DI 上,SPI 反向讀 1B。
+    // 這次切換 SPI 模式約 5~10 ms，所以 60 s 內複用上次結果（屏温變化很慢）。
     constexpr int64_t kCacheValidMs = 60 * 1000;
     const int64_t     now_ms        = time_utils::NowMs();
 
@@ -37,8 +37,8 @@ void EpdSsd1683::ApplyTemperatureBoost() {
         EpdSendCommand(0x40);
         ReadBusy();
         const uint8_t temp = EpdRecvData();
-        // 5 档:≤5°C 用 -24°C 偏置(0xE8),≤10 用 -21,≤20 用 -18,≤30 用 -15,
-        // ≤127 用 -12;>127(寄存器异常)按最冷处理。
+        // 5 檔:≤5°C 用 -24°C 偏置(0xE8),≤10 用 -21,≤20 用 -18,≤30 用 -15,
+        // ≤127 用 -12;>127(寄存器異常)按最冷處理。
         if (temp <= 5)
             booster = 232;
         else if (temp <= 10)
@@ -67,7 +67,7 @@ void EpdSsd1683::EpdDisplayFull() {
     uint8_t* line    = epd_line_.data();
 
     ApplyTemperatureBoost();
-    EpdSendCommand(0xA5);  // Master Activation:加载 LUT(full 模式必需)
+    EpdSendCommand(0xA5);  // Master Activation:加載 LUT(full 模式必需)
     ReadBusy();
     vTaskDelay(pdMS_TO_TICKS(10));
 
@@ -91,15 +91,15 @@ void EpdSsd1683::EpdDisplayPartial() {
     int      bpr_out = bpr * 2;
     uint8_t* line    = epd_line_.data();
 
-    // 不要重写 booster!
-    // 之前这里调了 ApplyTemperatureBoost 想"低温补偿",但实测每次 partial 前
-    // 发 0xE0 0xE6 会把 SSD1683 切回 boost-charge 状态,partial LUT 失效,
-    // 屏幕看起来"日志在刷但完全没变化"。booster 在上一轮 FULL 路径的
-    // ApplyTemperatureBoost + EpdInit 时已经设好,partial 复用即可。
-    // 参考 esp32-eink/.../custom_lcd_display.cc:1135 EPD_DisplayPart 同样不写 booster。
+    // 不要重寫 booster!
+    // 之前這裏調了 ApplyTemperatureBoost 想"低温補償",但實測每次 partial 前
+    // 發 0xE0 0xE6 會把 SSD1683 切回 boost-charge 狀態,partial LUT 失效,
+    // 屏幕看起來"日誌在刷但完全沒變化"。booster 在上一輪 FULL 路徑的
+    // ApplyTemperatureBoost + EpdInit 時已經設好,partial 複用即可。
+    // 參考 esp32-eink/.../custom_lcd_display.cc:1135 EPD_DisplayPart 同樣不寫 booster。
 
     EpdSendCommand(0x10);
-    ReadBusy();  // 跟参考实现对齐:0x10 之后等 BUSY 回 HIGH
+    ReadBusy();  // 跟參考實現對齊:0x10 之後等 BUSY 回 HIGH
     for (int y = 0; y < kHeight; ++y) {
         const uint8_t* prev = prev_snapshot_ + y * bpr;
         const uint8_t* now  = snapshot_ + y * bpr;
@@ -120,7 +120,7 @@ void EpdSsd1683::EpdTurnOnDisplay() {
     EpdSendCommand(0x02);  // power off (controller internal)
     EpdSendData(0x00);
     ReadBusy();
-    // 跟参考实现对齐:每次刷完屏都断 GPIO6,跟刷新前的 EpdInit() 内 EpdPowerOn 配对。
-    // 见 esp32-eink/main/boards/zectrix-s3-epaper-4.2/custom_lcd_display.cc:826。
+    // 跟參考實現對齊:每次刷完屏都斷 GPIO6,跟刷新前的 EpdInit() 內 EpdPowerOn 配對。
+    // 見 esp32-eink/main/boards/zectrix-s3-epaper-4.2/custom_lcd_display.cc:826。
     EpdPowerOff();
 }

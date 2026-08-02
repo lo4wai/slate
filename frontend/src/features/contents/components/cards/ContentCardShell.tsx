@@ -42,7 +42,7 @@ export function ContentCardShell({
           </div>
         ) : error ? (
           <div className="absolute inset-0 flex items-center justify-center text-stone-light text-[12px]">
-            加载失败
+            加載失敗
           </div>
         ) : (
           (preview ?? null)

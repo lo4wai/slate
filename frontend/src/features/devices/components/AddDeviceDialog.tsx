@@ -1,9 +1,9 @@
-// 按设备屏上的 6 位配对码绑定设备。
+// 按設備屏上的 6 位配對碼綁定設備。
 //
-// 流程：用户拿到一台已经联网但未绑定的 Slate 设备 → 设备屏上显示配对码 →
-// 用户在此对话框输入 → 后端找到 device、把 owner 设为当前用户、轮换 pair_code。
+// 流程：用户拿到一台已經聯網但未綁定的 Slate 設備 → 設備屏上顯示配對碼 →
+// 用户在此對話框輸入 → 後端找到 device、把 owner 設為當前用户、輪換 pair_code。
 //
-// 命名留到绑定后在设备列表 PATCH name。
+// 命名留到綁定後在設備列表 PATCH name。
 
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -39,22 +39,22 @@ export function AddDeviceDialog({ open, onOpenChange }: AddDeviceDialogProps) {
     if (!codeValid) return;
     try {
       const device = await claim.mutateAsync({ pair_code: normalizePairCode(code) });
-      // 后端 claim 时若 owner 已有相册会自动绑第一个，无相册则后续 create 会反向绑；
-      // 这里只给出与实际后端行为一致的概要提示，不做额外引导（用户可在设备列表看进度）。
+      // 後端 claim 時若 owner 已有相冊會自動綁第一個，無相冊則後續 create 會反向綁；
+      // 這裏只給出與實際後端行為一致的概要提示，不做額外引導（用户可在設備列表看進度）。
       toast.success(
-        '设备已绑定',
-        device.selected_group_id ? '设备屏将开始同步相册' : '请创建一个相册，设备屏会自动同步'
+        '設備已綁定',
+        device.selected_group_id ? '設備屏將開始同步相冊' : '請創建一個相冊，設備屏會自動同步'
       );
       reset();
       onOpenChange(false);
     } catch (err) {
       const status = getApiErrorStatus(err);
       if (status === 404) {
-        toast.error('配对码无效', '请核对设备屏上的码，或在设备上长按 ENTER 工厂重置后重试。');
+        toast.error('配對碼無效', '請核對設備屏上的碼，或在設備上長按 ENTER 工廠重置後重試。');
       } else if (status === 403) {
-        toast.error('该设备已被其他账号绑定', '在设备上工厂重置后再试。');
+        toast.error('該設備已被其他賬號綁定', '在設備上工廠重置後再試。');
       } else {
-        toast.error('绑定失败', getApiErrorMessage(err));
+        toast.error('綁定失敗', getApiErrorMessage(err));
       }
     }
   }
@@ -72,14 +72,14 @@ export function AddDeviceDialog({ open, onOpenChange }: AddDeviceDialogProps) {
         <Dialog.Content className={dialogContentCls}>
           <DialogHeader
             icon={<KeyRound size={24} />}
-            title="添加设备"
-            description="在设备屏上查看 6 位配对码，输入此处即绑定。"
+            title="添加設備"
+            description="在設備屏上查看 6 位配對碼，輸入此處即綁定。"
             className="mb-6"
           />
 
           <form onSubmit={onSubmit} className="space-y-5">
             <Input
-              label="配对码"
+              label="配對碼"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="K7M9X2"
@@ -87,8 +87,8 @@ export function AddDeviceDialog({ open, onOpenChange }: AddDeviceDialogProps) {
               autoComplete="off"
               spellCheck={false}
               maxLength={8}
-              hint={code && !codeValid ? undefined : '6 位字母+数字，可带短横线'}
-              error={code && !codeValid ? '配对码格式不正确' : undefined}
+              hint={code && !codeValid ? undefined : '6 位字母+數字，可帶短橫線'}
+              error={code && !codeValid ? '配對碼格式不正確' : undefined}
               className="font-mono uppercase tracking-[0.2em] text-center"
             />
 
@@ -103,7 +103,7 @@ export function AddDeviceDialog({ open, onOpenChange }: AddDeviceDialogProps) {
                 disabled={!codeValid || claim.isPending}
                 iconRight={claim.isPending ? undefined : <ArrowRight size={14} />}
               >
-                {claim.isPending ? <Spinner /> : '绑定'}
+                {claim.isPending ? <Spinner /> : '綁定'}
               </Button>
             </div>
           </form>

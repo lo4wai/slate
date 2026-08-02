@@ -1,12 +1,12 @@
-// 全局 confirm：替代浏览器 window.confirm，用 Radix Dialog 风格化。
+// 全局 confirm：替代瀏覽器 window.confirm，用 Radix Dialog 風格化。
 //
 // 用法：
 //   const confirm = useConfirm();
-//   if (await confirm({ title: '删除这一帧?', description: '此操作不可逆。', destructive: true })) {
+//   if (await confirm({ title: '刪除這一幀?', description: '此操作不可逆。', destructive: true })) {
 //     del.mutate(...);
 //   }
 //
-// 在 App 根挂 <ConfirmProvider /> 一次。
+// 在 App 根掛 <ConfirmProvider /> 一次。
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -32,8 +32,8 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
   const confirm = useCallback(
     (options: ConfirmOptions) => {
       return new Promise<boolean>((resolve) => {
-        // 单一路径：始终入队，再决定要不要立即 show。两次同步 confirm() 不会产生
-        // 「都看到 active=null 都直接 show」的覆盖竞态。
+        // 單一路徑：始終入隊，再決定要不要立即 show。兩次同步 confirm() 不會產生
+        // 「都看到 active=null 都直接 show」的覆蓋競態。
         queueRef.current.push({ ...options, resolve });
         if (!activeRef.current) {
           const next = queueRef.current.shift();
@@ -73,11 +73,11 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         }}
       >
         <Dialog.Portal>
-          {/* z-index 故意比其它 dialog 高一档：
+          {/* z-index 故意比其它 dialog 高一檔：
                 普通 dialog （ImageContentEditor / Groups create）： overlay z-40 / content z-50
                 Confirm                                  ： overlay z-50 / content z-60
-              因为业务里 dialog 内部还可能再触发 confirm（如 ImageContentEditor 删音频），
-              confirm 必须盖在那些 dialog 之上。改前请确认这条不变量。 */}
+              因為業務裏 dialog 內部還可能再觸發 confirm（如 ImageContentEditor 刪音頻），
+              confirm 必須蓋在那些 dialog 之上。改前請確認這條不變量。 */}
           <Dialog.Overlay className={dialogOverlayConfirmCls} />
           <Dialog.Content className={dialogContentConfirmCls}>
             <div className="flex items-center gap-4">
@@ -105,7 +105,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                 onClick={() => close(true)}
                 autoFocus
               >
-                {active?.confirmText ?? '确认'}
+                {active?.confirmText ?? '確認'}
               </Button>
             </div>
           </Dialog.Content>

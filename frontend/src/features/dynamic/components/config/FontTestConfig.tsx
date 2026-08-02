@@ -18,7 +18,7 @@ export function FontTestConfigPanel({
   return (
     <div className="space-y-4">
       <div>
-        <p className="font-mono text-[10px] text-stone uppercase tracking-[0.18em] mb-1.5">字体</p>
+        <p className="font-mono text-[10px] text-stone uppercase tracking-[0.18em] mb-1.5">字體</p>
         <Select
           value={config.font_id}
           onValueChange={(value) => {
@@ -44,7 +44,7 @@ export function FontTestConfigPanel({
         </div>
       )}
       <Checkbox
-        label="反白测试"
+        label="反白測試"
         checked={config.invert}
         onChange={(value) => onChange({ ...config, invert: value })}
       />

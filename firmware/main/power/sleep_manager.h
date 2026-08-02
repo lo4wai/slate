@@ -1,16 +1,16 @@
 #pragma once
 
-// 闲置自动深睡。Tick() 检测闲置时长 ≥ 阈值 + 不在充电 + 启用状态时,
-// 直接 esp_deep_sleep_start。醒来由 ext1 wakeup(GPIO 0/18 任一拉低)或重启触发,
+// 閒置自動深睡。Tick() 檢測閒置時長 ≥ 閾值 + 不在充電 + 啓用狀態時,
+// 直接 esp_deep_sleep_start。醒來由 ext1 wakeup(GPIO 0/18 任一拉低)或重啓觸發,
 // app_main 重新跑。
 //
-// 硬件限制:ESP32-S3 RTC GPIO 范围 0-21,GPIO 39(UP 键)不是 RTC IO,不能 ext1 唤醒。
-// 只能 BOOT(GPIO0) / DOWN(GPIO18) 醒来。用户想看上一帧需要先按 DOWN/BOOT 醒,
+// 硬件限制:ESP32-S3 RTC GPIO 範圍 0-21,GPIO 39(UP 鍵)不是 RTC IO,不能 ext1 喚醒。
+// 只能 BOOT(GPIO0) / DOWN(GPIO18) 醒來。用户想看上一幀需要先按 DOWN/BOOT 醒,
 // 再按 UP 翻。
 //
-// Unbound grace 窗口:设备未绑定时禁 deep sleep,让 SyncService 快轮询,
-// 用户在 Web 端输码后屏切「等待内容组」。轮询间隔阶梯退避(10s→30s→60s),
-// 窗口最长 2h,过期或低电量(<20%)后回退正常省电策略,避免耗光电池。
+// Unbound grace 窗口:設備未綁定時禁 deep sleep,讓 SyncService 快輪詢,
+// 用户在 Web 端輸碼後屏切「等待內容組」。輪詢間隔階梯退避(10s→30s→60s),
+// 窗口最長 2h,過期或低電量(<20%)後回退正常省電策略,避免耗光電池。
 
 #include <atomic>
 #include <cstdint>
@@ -28,13 +28,13 @@ class SleepManager {
         kUnboundGrace,
     };
 
-    // unbound 状态保持禁睡的最长窗口。超过则即便仍 unbound 也允许 deep sleep。
+    // unbound 狀態保持禁睡的最長窗口。超過則即便仍 unbound 也允許 deep sleep。
     static constexpr int64_t kUnboundGraceMs = 2LL * 60 * 60 * 1000;
-    // 电量低于此阈值时强制允许 deep sleep,无视 unbound 状态。
+    // 電量低於此閾值時強制允許 deep sleep,無視 unbound 狀態。
     static constexpr int kLowBatteryPct = 20;
 
-    // 看门狗：语音/同步等 blocker 连续阻止深睡超过此时长时，强制走一次带守卫的
-    // 深睡尝试（内部会停掉语音/同步）。兜底「会话/下载卡死 → 永不睡 → 耗光电池」。
+    // 看門狗：語音/同步等 blocker 連續阻止深睡超過此時長時，強制走一次帶守衞的
+    // 深睡嘗試（內部會停掉語音/同步）。兜底「會話/下載卡死 → 永不睡 → 耗光電池」。
     static constexpr int64_t kMaxBlockedMs = 15LL * 60 * 1000;
 
     struct SleepDecision {
@@ -51,17 +51,17 @@ class SleepManager {
 
     void Init(Policy p);
     void SetSleepBlocker(std::function<bool()> blocks_sleep);
-    void Disable();  // captive portal 等场景禁用 deep sleep
+    void Disable();  // captive portal 等場景禁用 deep sleep
 
     void OnEvent(const UiEvent& e);
     void Tick(int64_t now_ms);
 
-    // 主动进 deep sleep。**正常情况不返回**；若被 paused_(充电中)/enabled_=false 短路，
-    // 会立刻 return,调用方应转入正常 active 模式(例如把 cache 中的内容组 push 成 FrameScene)。
+    // 主動進 deep sleep。**正常情況不返回**；若被 paused_(充電中)/enabled_=false 短路，
+    // 會立刻 return,調用方應轉入正常 active 模式(例如把 cache 中的內容組 push 成 FrameScene)。
     SleepDecision TryEnterDeepSleep();
 
    private:
-    // 当前是否处于 unbound 加速窗口(unbound + 未超 2h + 电量充足)。
+    // 當前是否處於 unbound 加速窗口(unbound + 未超 2h + 電量充足)。
     bool     InUnboundGrace(int64_t now_ms) const;
     bool     MarkUnboundIfNeeded(int64_t now_ms);
     uint32_t ComputeConfiguredNextWakeSec() const;
@@ -69,7 +69,7 @@ class SleepManager {
 
     std::atomic<bool>    enabled_{false};
     std::atomic<int64_t> last_active_ms_{0};
-    // blocker(语音/同步)开始连续阻止深睡的时刻；0 表示当前未被阻止。看门狗据此计时。
+    // blocker(語音/同步)開始連續阻止深睡的時刻；0 表示當前未被阻止。看門狗據此計時。
     std::atomic<int64_t> blocked_since_ms_{0};
     std::atomic<bool>    paused_{false};
     int                  idle_timeout_min_ = 5;

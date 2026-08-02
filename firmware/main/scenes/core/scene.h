@@ -1,9 +1,9 @@
 #pragma once
 
 // Scene 抽象 + SceneContext。
-// 所有可见 UI = 一个 Scene；多个 Scene 用 SceneStack 堆叠。启动态可以是
-// SplashScene / BgRefreshScene / FrameScene，具体由 App 的 boot_mode 决定。
-// Scene 的所有方法仅由 ui_loop task 调用（OnEnter/OnExit/OnEvent）。
+// 所有可見 UI = 一個 Scene；多個 Scene 用 SceneStack 堆疊。啓動態可以是
+// SplashScene / BgRefreshScene / FrameScene，具體由 App 的 boot_mode 決定。
+// Scene 的所有方法僅由 ui_loop task 調用（OnEnter/OnExit/OnEvent）。
 
 #include <lvgl.h>
 #include <functional>
@@ -31,7 +31,7 @@ struct SceneContext {
     AudioPlayer* audio = nullptr;
     SceneStack*  stack = nullptr;
 
-    // 数据访问通过依赖注入，Scene 不直接抓 Board / Wifi 单例。
+    // 數據訪問通過依賴注入，Scene 不直接抓 Board / Wifi 單例。
     std::function<bool(int* mv, int* pct)>  read_battery;
     std::function<ChargeStatus::Snapshot()> read_charge;
     std::function<bool()>                   wifi_connected;

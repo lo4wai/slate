@@ -23,7 +23,7 @@ export function DynamicContentFormShell({
     >
       <div className="order-2 min-w-0 lg:order-1">
         <p className="font-mono text-[10px] leading-5 text-stone uppercase tracking-[0.18em] ml-0.5 mb-2">
-          设备预览
+          設備預覽
         </p>
         {preview}
       </div>

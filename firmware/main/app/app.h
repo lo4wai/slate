@@ -1,11 +1,11 @@
 #pragma once
 
-// 顶层 App。把所有子系统按依赖顺序串起来：
+// 頂層 App。把所有子系統按依賴順序串起來：
 //   Storage → Board → Audio → EventBus → SceneStack → ui_loop task →
-//   Inputs(按键/充电→EventBus) → MinuteBoundaryTicker → Network → SleepManager → PM
+//   Inputs(按鍵/充電→EventBus) → MinuteBoundaryTicker → Network → SleepManager → PM
 //
-// Run() 等同 vTaskDelete(NULL)：把 main task 的 8 KB 栈让出来，
-// 由各后台 task（ui_loop / sync / charge_tick / audio / epd_refresh）继续跑。
+// Run() 等同 vTaskDelete(NULL)：把 main task 的 8 KB 棧讓出來，
+// 由各後台 task（ui_loop / sync / charge_tick / audio / epd_refresh）繼續跑。
 
 #include <atomic>
 #include <memory>
@@ -40,7 +40,7 @@ class App {
     bool ReadBattery(int* mv, int* pct);
     void StartSleep();
     void FinalizePm();
-    // 按当前供电/模式决定是否启用自动 light sleep，并应用 PM 配置。充电状态变化时重调。
+    // 按當前供電/模式決定是否啓用自動 light sleep，並應用 PM 配置。充電狀態變化時重調。
     void ConfigurePm(bool light_sleep_enable);
     bool ShouldEnableLightSleep(bool power_present) const;
 

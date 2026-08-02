@@ -1,4 +1,4 @@
-// Mono Press 音频 dropzone — 虚线框，0 圆角。
+// Mono Press 音頻 dropzone — 虛線框，0 圓角。
 
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -15,7 +15,7 @@ interface AudioDropzoneProps {
   audioFile: File | null;
   onPick: (f: File | null) => void;
   disabled?: boolean;
-  /** 由外层 FormSection 提供 label 时关闭组件自带 label。 */
+  /** 由外層 FormSection 提供 label 時關閉組件自帶 label。 */
   hideLabel?: boolean;
 }
 
@@ -33,10 +33,10 @@ export function AudioDropzone({
     isPending: deleteAudioPending,
     getConfirmOptions: useCallback(
       () => ({
-        title: '删除这一帧的音频？',
-        description: '图保留，只移除音频文件。',
+        title: '刪除這一幀的音頻？',
+        description: '圖保留，只移除音頻文件。',
         destructive: true,
-        confirmText: '删除音频',
+        confirmText: '刪除音頻',
       }),
       []
     ),
@@ -44,8 +44,8 @@ export function AudioDropzone({
       (contentId, callbacks) => deleteAudioMutate(contentId, callbacks),
       [deleteAudioMutate]
     ),
-    successToast: '音频已删除',
-    errorToast: '删除失败',
+    successToast: '音頻已刪除',
+    errorToast: '刪除失敗',
   });
 
   const dz = useDropzone({
@@ -61,7 +61,7 @@ export function AudioDropzone({
     hasExistingAudio && editingContentId != null ? (
       <DeleteAudioButton
         isPending={deleteAudioPending}
-        label={hideLabel ? '删除已有音频' : '删除'}
+        label={hideLabel ? '刪除已有音頻' : '刪除'}
         onDelete={() => deleteAudioWithConfirm(editingContentId)}
       />
     ) : null;
@@ -71,7 +71,7 @@ export function AudioDropzone({
       {!hideLabel && (
         <div className="flex items-center justify-between mb-2">
           <p className="font-mono text-[10px] text-stone uppercase tracking-[0.18em]">
-            音频{hasExistingAudio ? ' · 已有' : ' · 选填'}
+            音頻{hasExistingAudio ? ' · 已有' : ' · 選填'}
           </p>
           {deleteAudio}
         </div>
@@ -97,10 +97,10 @@ export function AudioDropzone({
               <p className="font-sans text-[11px] text-stone">{formatBytes(audioFile.size)}</p>
             </>
           ) : hasExistingAudio ? (
-            <p className="font-sans text-[13px] text-stone">拖新文件可替换</p>
+            <p className="font-sans text-[13px] text-stone">拖新文件可替換</p>
           ) : (
             <p className="font-sans text-[13px] text-stone">
-              MP3 / WAV / OGG / FLAC / AAC，自动转码
+              MP3 / WAV / OGG / FLAC / AAC，自動轉碼
             </p>
           )}
         </div>

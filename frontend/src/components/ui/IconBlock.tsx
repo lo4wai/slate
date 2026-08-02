@@ -1,17 +1,17 @@
-// Mono Press icon 容器：0px 圆角、墨线边框。
+// Mono Press icon 容器：0px 圓角、墨線邊框。
 //
-// 尺寸阶梯：
-//   sm  w-8  h-8    内嵌 / 列表小图标
+// 尺寸階梯：
+//   sm  w-8  h-8    內嵌 / 列表小圖標
 //   md  w-10 h-10   卡片 / section badge / dialog header
-//   lg  w-14 h-14   group 大标题
-//   xl  w-16 h-16   login/register 品牌块
+//   lg  w-14 h-14   group 大標題
+//   xl  w-16 h-16   login/register 品牌塊
 //
-// 语调：
+// 語調：
 //   brand  bg-ink text-paper border-ink   logo 唯一
-//   soft   bg-paper text-ink border-ink   默认（卡片/header/dialog）
-//   danger bg-paper text-clay border-clay 销毁性/警告
-//   muted  bg-cream text-stone border-line 空状态/弱化
-//   avatar bg-ink text-paper border-ink    用户头像
+//   soft   bg-paper text-ink border-ink   默認（卡片/header/dialog）
+//   danger bg-paper text-clay border-clay 銷燬性/警告
+//   muted  bg-cream text-stone border-line 空狀態/弱化
+//   avatar bg-ink text-paper border-ink    用户頭像
 
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';

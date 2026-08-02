@@ -51,7 +51,7 @@ export function ImageAudioBlock({
             label: (
               <>
                 <Upload size={12} />
-                上传
+                上傳
               </>
             ),
           },

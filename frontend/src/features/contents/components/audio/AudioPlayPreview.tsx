@@ -1,4 +1,4 @@
-// 音频播放预览。server 给的是 raw PCM，播放控制由 usePcmAudioPlayer 封装。
+// 音頻播放預覽。server 給的是 raw PCM，播放控制由 usePcmAudioPlayer 封裝。
 
 import { useState, useCallback, useEffect } from 'react';
 import { Loader2, Pause, Play } from 'lucide-react';
@@ -9,10 +9,10 @@ import { usePcmAudioPlayer } from './usePcmAudioPlayer';
 
 interface AudioPlayPreviewProps {
   contentId: string;
-  /** 没 etag 表示无音频,组件返 null */
+  /** 沒 etag 表示無音頻,組件返 null */
   etag: string | null;
   className?: string;
-  /** 标签：显示在按钮旁（可选，如「试听」） */
+  /** 標籤：顯示在按鈕旁（可選，如「試聽」） */
   label?: string;
 }
 
@@ -48,7 +48,7 @@ export function AudioPlayPreview({ contentId, etag, className, label }: AudioPla
   if (!etag) return null;
 
   const loading = requested && audio.isFetching;
-  const title = audio.error ? '音频加载失败' : loading ? '加载中' : playing ? '停止' : '试听';
+  const title = audio.error ? '音頻加載失敗' : loading ? '加載中' : playing ? '停止' : '試聽';
 
   return (
     <button
@@ -71,11 +71,11 @@ export function AudioPlayPreview({ contentId, etag, className, label }: AudioPla
             .then((ctx) => {
               if (ctx) return;
               setPlayAfterLoad(false);
-              toast.error('音频播放失败', '当前环境不支持 WebAudio。');
+              toast.error('音頻播放失敗', '當前環境不支持 WebAudio。');
             })
             .catch((err) => {
               setPlayAfterLoad(false);
-              toast.error('音频播放失败', err instanceof Error ? err.message : undefined);
+              toast.error('音頻播放失敗', err instanceof Error ? err.message : undefined);
             });
         }
       }}
